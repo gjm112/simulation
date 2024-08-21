@@ -1,0 +1,112 @@
+---
+title: "STAT321/421"
+author: "Gregory J. Matthews"
+format: revealjs
+editor: visual
+---
+
+# Useful Links
+
+-   [Installing R and RStudio](https://36-sure.github.io/r-setup.html)
+
+-   [Setting up Git and Github](https://36-sure.github.io/git-setup.html)
+
+-   [Quarto](https://r4ds.hadley.nz/quarto)
+
+-   [Piazza Course Site](https://piazza.com/class/lzyfs2usjv2e6)
+
+-   [Dr. Matthews' Zoom link](https://luc.zoom.us/j/6622906748)
+
+-   [Advanced R](https://adv-r.hadley.nz/)
+
+-   [R for Data Science](https://r4ds.had.co.nz/)
+
+## R Data types and operators
+
+-   Tensors (Vectors, Matrices, Arrays)
+-   Lists
+-   Data Frames
+
+## Vectors
+
+-   Basic unit of R
+-   All elements must be same type
+-   Types of vectors:
+    -   Numeric
+    -   Integer
+    -   Character
+    -   Logical
+
+## Examples
+
+```{r}
+#| echo: true
+v1 <- c(413,508,603,860,312)
+class(v1)
+
+v2 <- as.integer(c(413,508,603,860,312))
+class(v2)
+
+v3 <- c("rock","guts","agrocrag","trash", "spritecoin", "hai davai")
+class(v3)
+
+v4 <- c(TRUE, FALSE, TRUE)
+class(v4)
+
+v5 <- as.factor(c(103,112,119,125,13))
+class(v5)
+```
+
+## Operations
+
+All operations are done element wise
+
+```{r}
+#| echo: true
+#addition
+v1 + v2
+
+#substraction
+v1 - v2
+
+#Multiplication
+v1 * v2
+
+#Division
+v1 / v2
+```
+
+## Operations
+
+```{r}
+#| echo: true
+sum(v1)
+```
+
+## Subsetting a vector
+
+```{r}
+#| echo: true
+#pull out a single element
+v1[1]
+
+#pull out consecutive elements
+v1[2:4]
+
+#remove an element
+v1[-2]
+
+#remove consecutive elements
+v1[-c(3:4)]
+
+#pull out nonconsecutive elements
+v1[c(1,3,5)]
+```
+
+## Matrices
+
+## Arrays
+
+## Lists
+
+## Data Frames
