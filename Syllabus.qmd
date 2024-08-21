@@ -1,0 +1,186 @@
+---
+title: "Syllabus: STAT321/COMP421/STAT421/COMP421"
+format: html
+editor: source
+---
+
+# Course Information 
+## Course Name and Description 
+Statistical Computation and Simulation: This course uses the statistical programming language R to perform statistical computation and simulation.  Students will gain practical experience and knowledge in real-world statistical situations for which underlying theory is cumbersome or otherwise intractable.
+
+## Program/Number/Section 
+ - STAT321-001
+ - COMP321-001
+ - STAT421-001
+ - COMP421-001
+
+## Course Meeting Time 
+Tuesday and Thursday 11:30AM - 12:45PM
+
+## Pre-requisites/Co-requisites 
+STAT 308 with a grade of C- or higher
+
+## Location 
+Dumbach 230
+
+## University Requirements Fulfilled  
+NA
+
+## Piazza Link
+[Piazza for this course](https://piazza.com/luc/fall2024/stat321stat421comp321comp421)
+
+# Instructor Information
+
+## Instructor name 
+Dr. Gregory J. Matthews, Ph. Dizzle
+
+## Where, when, and how to contact the instructor 
+#### Where You Can Find Me:
+Yo, I’m in the mix, keeping it laid-back and smooth. You wanna catch me? Slide through to my spot—online, of course. My virtual crib is open for all y'all. [***Zoom link***](https://luc.zoom.us/j/6622906748) (Zoom number: 6622906748)
+
+#### When I’m Available:
+I'm on that 9 to 5 grind, Monday through Friday, but don’t trip—if you need me outside those hours, just hit me up, and I’ll holla back when I’m in the zone.  
+
+#### How to Reach Out
+Drop me a line, send an email, or slide into my DMs—whatever works for you, works for me. Just keep it real, and I'll keep it 100 with you.
+
+#### Contact Informizzle
+Email: [gmatthews1@luc.edu](mailto:gmatthews1@luc.edu)
+Office Hours: [Set your time, and I’ll be there]
+DMs: Hit me up on Piazza, and I’ll holla back ASAP
+
+Stay cool, stay connected, and don’t hesitate to reach out when you need a little guidance. We’re in this together, baby!
+
+## Office hours for the term  
+By appointment.
+
+Schedule an appointment [here](https://calendly.com/statsinthewild/office-hours-stat321).
+
+# Learning 
+
+## List course learning outcomes, objectives, and/or competencies 
+Students will gain practical experience and knowledge in real-world statistical situations for which underlying theory is cumbersome or intractable.
+
+## Brief description of learning activities planned to achieve those outcomes, objectives and/or competencies (e.g., lecture, small group projects, readings and discussion, class presentations) 
+This class will consist of in-person lectures, homework assignments, two exams, and a group project (for undergraduate students) / individual project (for graduate student)
+
+## A timeline that the instructor sets that describes the overall organization of the course, as well as when readings, assignments, and assessments will occur 
+
+Topics to cover:
+
+ - Introduction/Review of R programming language 
+    - Basic Objects
+    - Loops
+    - Vector based programming (i.e. map family)
+    - Writing functions in R
+ - Numerical Techniques
+    - Root finding
+    - Numerical Integration
+    - Optimization (including simulated anealling)
+    - Random variable transformations
+    - Parameter estimation
+ - Simulation
+   - Simulating from a uniform distribution
+   - Inversion method 
+   - Rejection method
+ - Monte Carlo Techniques
+   - Finding expectations
+   - Confidence intervals
+   - Monte Carlo integration
+ - Markov Chains
+ - BRIEF introduction to Bayesian Statistics
+ - Monte Carlo Markov Chain (MCMC) techniques
+	 - Metropolis algorithm 
+	 - Metropolis-Hastings algorithm 
+	 - Gibbs Sampling
+ - Simulation Studies
+	 
+# Information about Academic Integrity 
+Many practice problems will be given to be worked on outside of class; discussing practice problems with others is encouraged and in-class discussions are also encouraged. It is presumed and required that students do their own work on the exams. Cheating includes, but is not limited to, illegal collaboration, copying, using materials not permitted, and assisting others on tests. Anyone found cheating will not be permitted to withdraw and will receive an F grade for the course. Your academic dean will be informed and a statement will be placed in your permanent file.
+
+[Academic Integrity and Grievances](https://www.luc.edu/cas/academicadvising/academicintegritygrievances/)
+
+
+# Diversity Statemenrt
+Students in this class are encouraged to speak up and participate during class meetings. Because the class will represent a diversity of individual beliefs, backgrounds, and experiences, every member of this class must show respect for every other member of this class. 
+
+# Inclusivity Statement
+I support an inclusive learning environment where diversity and individual differences are understood, respected, appreciated, and recognized as a source of strength. We expect that students, faculty, administrators and staff at LUC will respect differences and demonstrate diligence in understanding how other peoples' perspectives, behaviors, and world views may be different from their own. 
+
+# Required Materials, and/or Equipment 
+NA
+
+# Optional Materials
+ - [Advanced R](https://adv-r.hadley.nz/subsetting.html)
+ - [Fifty Challenging Probability Problems](https://mbapreponline.wordpress.com/wp-content/uploads/2013/07/fifty_challenging_problems_in__2.pdf)
+ - [Advanced Simualtion Methods](https://www.stats.ox.ac.uk/~rebeschi/teaching/AdvSim/18/index.html)
+ - [Convex Optimization](https://www.stat.cmu.edu/~ryantibs/convexopt/)
+ - [Introduction to Statistical Learning](https://www.statlearning.com/)
+
+# Evaluation and Grading 
+ - 8 homework assignemnts (25%)
+ - Exam 1 (25%) (Approximately Week 8)
+ - Exam 2 (25%)
+ - One final project (25%) (Undergraduates will work in groups of 2 or 3; grad students will work individually)
+
+- Final Letter Grades
+  - $\left[93,\infty\right)$ = A
+  - $\left[90,93\right)$ = A-
+  - $\left[87,90\right)$ = B+
+  - $\left[83,87\right)$ = B
+  - $\left[80,83\right)$ = B-
+  - $\left[77,80\right)$ = C+
+  - $\left[73,77\right)$ = C
+  - $\left[70,73\right)$ = C-
+  - $\left[67,70\right)$ = D
+  - $\left[60,67\right)$ = D+
+  - (-$\infty$, 60) = F
+
+# Make-up policy
+## Missed Exams
+No make-up exams will be given. If you miss one exam and have a valid and verifiable personal or medical excuse (such as an illness requiring hospitalization or a death in the immediate family), your final exam score will be pro-rated to make up the missing points. All medical excuses must be signed by your physician. Original documents must be shown to the instructor; no photocopied or scanned documents will be accepted. Students who do not provide appropriate documentation for missing an exam will receive a zero on the exam. No more than one exam may be missed. Please note that vacations and travel plans are not valid reasons for missing an exam.
+
+# Attendance 
+#### Smooth Attendance Policy
+Yo, yo, yo! Welcome to the coolest spot in town, where learning is fresh and vibes are fly. Now, let’s talk about showing up, or not—'cause this is how we do.
+
+#### Attendance? It's Optional, Baby!
+Here’s the deal: You ain't gotta roll in every day, but let me drop some knowledge on ya—being here is where the magic happens. You feel me? So while you can kick back and chill at home, popping in and vibing with your peeps can take you places.
+
+#### Why Show Up?
+ - Connections: You never know who you might link up with. Being in the house means you're part of the action, and that’s where the real grooves are made.
+ - Experience: The flow, the energy, the moments—you can’t catch those from the crib. Being present adds flavor to your learning game.
+ - Respect: Show up, and you’re showing love to yourself and the crew. Plus, it's all about that hustle, and the hustle loves company.
+When You Don’t Show Up
+
+No stress, no mess. You’re the boss of your own time. Just make sure you keep it real with your work and stay on top of your game. The world keeps spinning, and so should you.
+
+#### The Bottom Line
+Pop in when you can, 'cause that’s where the good times roll. But if you gotta bounce, just know Snoop’s got love for you either way. Keep it chill, keep it real, and keep on shining, baby.
+
+
+## Religious Hoplidays
+[Statement about the observation of religious holidays](https://www.luc.edu/academicaffairs/homenews/honoringstudentreligiousobservances.shtml)
+
+# Information about Accessibility Support 
+## Requests for Accommodation
+Loyola University Chicago provides reasonable accommodations for students with disabilities. Any student requesting accommodations related to a disability or other condition is required to register with the Student Accessibility Center (SAC). Professors will receive an accommodation notification from SAC, preferably within the first two weeks of class.  
+Students are encouraged to meet with their professor individually in order to discuss their accommodations. All information will remain confidential.   
+Please note that in this class, software may be used to audio record class lectures in order to provide equal access to students with disabilities. Students approved for this accommodation use recordings for their personal study only and recordings may not be shared with other people or used in any way against the faculty member, other lecturers, or students whose classroom comments are recorded as part of the class activity. Recordings are deleted at the end of the semester.   
+
+For more information about registering with SAC or questions about accommodations, please contact SAC at 773-508-3700 or [SAC@luc.edu](mailto:SAC@luc.edu).
+
+
+# Information about Title IX 
+[Office of Equity and Compliance](https://www.luc.edu/equity/otherresources/resourcesforfacultystaff/syllabuslanguage/)
+
+
+
+
+
+
+
+
+
+
+
