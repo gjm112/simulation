@@ -1,0 +1,111 @@
+---
+title: "STAT321/421"
+author: "Gregory J. Matthews"
+format: revealjs
+editor: visual
+execute: 
+  echo: true
+---
+
+# Data viz
+ 
+ - We are going to use ggplot
+ - ggplot works with data frames
+ - We add layers
+
+## Histogram
+```{r}
+library(ggplot2)
+library(palmerpenguins)
+
+ggplot(aes(x = bill_length_mm),data = penguins) + geom_histogram()
+
+```
+
+## Kernel Density Estimators
+```{r}
+library(ggplot2)
+library(palmerpenguins)
+
+ggplot(aes(x = bill_length_mm),data = penguins) + geom_density()
+
+```
+
+## Boxplot 
+
+```{r}
+ggplot(aes(x = bill_length_mm),data = penguins) + geom_boxplot()
+```
+
+## Barplot 
+
+```{r}
+ggplot(aes(x = species),data = penguins) + geom_bar()
+```
+
+## Barplot 
+
+```{r}
+ggplot(aes(x = species, color = species),data = penguins) + geom_bar()
+```
+
+## Barplot 
+
+```{r}
+ggplot(aes(x = species, fill = species),data = penguins) + geom_bar()
+```
+
+## Side-by-side boxplots
+```{r}
+ggplot(aes(x = species, y = bill_length_mm),data = penguins) + geom_boxplot()
+```
+
+## Scatterplot 
+
+```{r}
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point()
+```
+
+## Scatterplot 
+
+```{r}
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point(color = "salmon")
+```
+
+## Scatterplot 
+
+```{r}
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species),data = penguins) + geom_point()
+```
+
+## Scatterplot 
+
+```{r}
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species),data = penguins) + geom_point() + geom_smooth()
+```
+
+## Faceting
+
+```{r}
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point() + geom_smooth() + facet_grid(~species)
+```
+
+## Faceting
+
+```{r}
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = island),data = penguins) + geom_point() + geom_smooth() + facet_grid(~species)
+```
+
+## Faceting
+
+```{r}
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point() + geom_smooth() + facet_grid(species~1)
+```
+
+## Faceting
+
+```{r}
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point() + geom_smooth() + facet_grid(species~island)
+```
+
+
