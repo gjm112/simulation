@@ -349,5 +349,165 @@ v1[v1 != 413 & v1 < 700]
 v1 %in% c(413,508)
 ```
 
+## If statements
+```{r}
+#If statement
+if (a == 3){
+  print("steve")
+}
+
+#If statement
+if (a == 4){
+  print("steve")
+}
+#Nothing happens
+
+#If with an else
+if (a == 4){
+  print("steve")
+} else {
+  print("quang")
+}
+
+
+```
+
+## Ifelse 
+ - ifelse is a vectorized function
+ - ifelse(test, yes, no)
+```{r}
+#Passing a single value
+ifelse(a == 3,"steve","quang")
+#Passing a vector
+ifelse(v1 > 500, "steve","quang")
+```
+
+## While Statement
+ - Keep doing something until a criteria is reached. 
+```{r}
+i <- 2
+while (i <= 100){
+  i <- i^2
+  print(i)
   
+}
+
+#Note: while (TRUE) {print("greg")} will just print "greg" forever 
+#until it is stopped.  This can be useful though inside a function.  
+
+```
+
+## For loops 
+- Do something a fixed number of times
+```{r}
+ for (i in 1:10){
+   print("greg")
+ }
+```
+
+
+## A note about speed
+
+```{r}
+library(tictoc)
+tic()
+n <- 1000000
+x <- rep(0, n)
+for (i in 1:n) {
+x[i] <- i
+}
+toc()
+```
+
+## A note about speed
+```{r}
+library(tictoc)
+tic()
+n <- 1000000
+x <- 1
+for (i in 2:n) {
+  x[i] <- i
+}
+toc()
+```
+
+## A note about speed
+ - Why is the first one faster than the second one?
+ - In the first, the size of the vector doesn't change, just what is assigned to the vector.
+ - In the second, the size of a the vector changes from $i-1$ to $i$ at each step.
+ - Changing the size of a vector (or an array) takes just as long as creating it.
+ - Changing the size of an array is called **redimensioning**.
+ - Creating the array "fully-grown" is called **preallocation**.
+ 
+<!-- ## A "more meanigful" example -->
+
+<!-- ```{r} -->
+<!-- library(tictoc) -->
+<!-- n_runs <- 500000 -->
+<!-- a <- c() -->
+<!-- tic() -->
+<!-- for (i in 1:n_runs) { -->
+<!--   tosses <- sample(0:1, size = 100, replace = TRUE) -->
+<!--   a[i] <- sum(tosses) -->
+<!-- } -->
+<!-- toc() -->
+
+<!-- b <- rep(NA, n_runs) -->
+<!-- tic() -->
+<!-- for (i in 1:n_runs) { -->
+<!--   tosses <- sample(0:1, size = 100, replace = TRUE) -->
+<!--   b[i] <- sum(tosses) -->
+<!-- } -->
+<!-- toc() -->
+
+<!-- # exact:  -->
+<!-- (factorial(100) / (factorial(50) * factorial(50))) * (1 / 2) ^ 100 -->
+<!-- mean(b == 50) -->
+<!-- ``` -->
+
+## Writing our own functions
+ - We will need to write out own functions at some point
+```{r}
+squareit <- function(x){
+  out <- x^2
+  out
+}
+squareit(3)
+
+#You can also use return to explicitly return something.
+#Only ONE return well ever get used in a function. 
+#Once it hits return, the function terminates
+squareit <- function(x){
+  out <- x^2
+  return(out)
+}
+squareit(10)
+```
+
+## Only one return allowed
+ - As soon as any return is hit, the function terminates. 
+```{r}
+squareit <- function(x){
+  out <- x^2
+  return(out)
+  return(2*out) #never evaluated
+}
+squareit(5)
+```
+
+```{r}
+squareit <- function(x) {
+  out <- x ^ 2
+  if (out > 100) {
+    return(out)
+  }
+  return(2 * out) 
+}
+squareit(5)
+squareit(11)
+```
+
+ 
+ 
+
  
