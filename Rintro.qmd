@@ -334,7 +334,7 @@ penguins %>% filter(body_mass_g <= 2850) %>%
 
 ## Examples 
 ```{r}
-#| error: TRUE
+#| error: true
 penguins %>% filter(body_mass_g <= 2850) %>% 
   mutate(bill_ratio = bill_length_mm/bill_depth_mm) %>%  
   select(species, island, body_mass_g, sex, bill_ratio)
