@@ -280,6 +280,13 @@ d1[["v3"]]
 library(tidyverse)
 d2 <- data.frame(v1 = 6:10, v2 = seq(11,20,2) , v3 = c("a","b","c","d","e"))
 rbind(d1, d2)
+```
+
+## Adding rows and columns to a data frame
+ - Adding a row
+```{r}
+library(tidyverse)
+d2 <- data.frame(v1 = 6:10, v2 = seq(11,20,2) , v3 = c("a","b","c","d","e"))
 bind_rows(d1,d2)
 ```
 
@@ -300,6 +307,57 @@ bind_rows(d1,d2)
 d1$v5 <- rnorm(5) 
 d1
 ```
+
+## Tidyverse
+  
+  - Tidyverse is a collection of packages for working with data frames.  
+  - This is not a pipe: %>% (new version |>, but I hate it.)
+  - Useful tidyverse verbs: 
+    - filter: subsets the rows
+    - select: subsets the columns
+    - mutate: Creates a new variable
+    - group_by: Prepare the data to be aggregagted by a group
+    - summarize: Computes data summaries across groups (if data is grouped)
+    
+## Examples 
+
+```{r}
+library(palmerpenguins)
+#Keep only rows with tiny adorable penguins
+penguins %>% filter(body_mass_g <= 2850)
+
+#Keep only rows with tiny adorable penguins
+#And selet a subset of columns
+penguins %>% filter(body_mass_g <= 2850) %>% 
+  select(species, island, body_mass_g, sex)
+```
+
+## Examples 
+```{r}
+#| error: TRUE
+penguins %>% filter(body_mass_g <= 2850) %>% 
+  mutate(bill_ratio = bill_length_mm/bill_depth_mm) %>%  
+  select(species, island, body_mass_g, sex, bill_ratio)
+
+#Order matters!
+penguins %>% filter(body_mass_g <= 2850) %>% 
+  select(species, island, body_mass_g, sex, bill_ratio) %>% 
+  mutate(bill_ratio = bill_length_mm/bill_depth_mm) 
+  
+```
+
+## Examples 
+```{r}
+
+#Average body_mass by species and sex
+penguins %>% 
+  group_by(species, sex) %>% 
+  summarize(mean_body_mass = mean(body_mass_g))
+
+```
+
+
+
 
 ## Logical statements
  
