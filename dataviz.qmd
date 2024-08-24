@@ -40,7 +40,8 @@ ggplot(aes(x = bill_length_mm),data = penguins) + geom_boxplot()
 ## Barplot 
 
 ```{r}
-ggplot(aes(x = species),data = penguins) + geom_bar()
+ggplot(aes(x = species),data = penguins) + 
+  geom_bar()
 ```
 
 ## Barplot 
@@ -57,55 +58,73 @@ ggplot(aes(x = species, fill = species),data = penguins) + geom_bar()
 
 ## Side-by-side boxplots
 ```{r}
-ggplot(aes(x = species, y = bill_length_mm),data = penguins) + geom_boxplot()
+ggplot(aes(x = species, y = bill_length_mm), data = penguins) + 
+geom_boxplot()
 ```
 
 ## Scatterplot 
 
 ```{r}
-ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point()
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + 
+  geom_point()
 ```
 
 ## Scatterplot 
 
 ```{r}
-ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point(color = "salmon")
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + 
+  geom_point(color = "salmon")
 ```
 
 ## Scatterplot 
 
 ```{r}
-ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species),data = penguins) + geom_point()
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species), data = penguins) +
+  geom_point()
 ```
 
 ## Scatterplot 
 
 ```{r}
-ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species),data = penguins) + geom_point() + geom_smooth()
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species), data = penguins) + 
+  geom_point() + 
+  geom_smooth()
 ```
 
 ## Faceting
 
 ```{r}
-ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point() + geom_smooth() + facet_grid(~species)
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + 
+  geom_point() + 
+  geom_smooth() + 
+  facet_grid(~species)
 ```
 
 ## Faceting
 
 ```{r}
-ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = island),data = penguins) + geom_point() + geom_smooth() + facet_grid(~species)
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = island),data = penguins) + 
+  geom_point() + 
+  geom_smooth() + 
+  facet_grid(~species)
 ```
 
 ## Faceting
 
 ```{r}
-ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point() + geom_smooth() + facet_grid(species~1)
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm), data = penguins) +
+  geom_point() +
+  geom_smooth() +
+  facet_grid(species ~ 1)
 ```
 
 ## Faceting
 
 ```{r}
-ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point() + geom_smooth() + facet_grid(species~island)
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm), data = penguins) +
+  geom_point() +
+  geom_smooth() +
+  facet_grid(species ~ island)
 ```
 
 
@@ -117,14 +136,92 @@ ggplot(aes(x = bill_length_mm, y = bill_depth_mm),data = penguins) + geom_point(
 df <- expand.grid(x = 0:5, y = 0:5)
 set.seed(1)
 df$z <- runif(nrow(df))
-# default is compatible with geom_tile()
 ggplot(df, aes(x, y, fill = z)) +
-  geom_raster()
+geom_tile() + coord_fixed()
 
+#This also works
 #ggplot(df, aes(x, y, fill = z)) +
-  geom_tile()
+#geom_raster()
 ```
 
 
-## 
+## Heat Map
 
+```{r}
+#| echo: false
+df <- expand.grid(x = 0:5, y = 0:5)
+set.seed(1)
+df$z <- runif(nrow(df))
+ggplot(df, aes(x, y, fill = z)) +
+geom_tile() + coord_fixed()
+```
+
+## Heat maps: color schemes
+ 
+```{r}
+df <- expand.grid(x = 0:5, y = 0:5)
+set.seed(1)
+df$z <- runif(nrow(df))
+ggplot(df, aes(x, y, fill = z)) +
+geom_tile() + 
+  coord_fixed() + 
+  scale_fill_continuous(type = "viridis")
+  
+
+#This also works
+#ggplot(df, aes(x, y, fill = z)) +
+#geom_raster()
+```
+
+## Heat maps: color schemes
+ 
+```{r}
+#| echo: false
+df <- expand.grid(x = 0:5, y = 0:5)
+set.seed(1)
+df$z <- runif(nrow(df))
+ggplot(df, aes(x, y, fill = z)) +
+geom_tile() + 
+  coord_fixed() + 
+  scale_fill_continuous(type = "viridis")
+  
+
+#This also works
+#ggplot(df, aes(x, y, fill = z)) +
+#geom_raster()
+```
+
+## Heat maps: custom color schemes
+ 
+```{r}
+df <- expand.grid(x = 0:5, y = 0:5)
+set.seed(1)
+df$z <- runif(nrow(df))
+ggplot(df, aes(x, y, fill = z)) +
+geom_tile() + 
+  coord_fixed() + 
+  scale_fill_gradient(low = "#eaaa00", high = "#5a0722")
+  
+
+#This also works
+#ggplot(df, aes(x, y, fill = z)) +
+#geom_raster()
+```
+
+## Heat maps: custom color schemes
+ 
+```{r}
+#| echo: false
+df <- expand.grid(x = 0:5, y = 0:5)
+set.seed(1)
+df$z <- runif(nrow(df))
+ggplot(df, aes(x, y, fill = z)) +
+geom_tile() + 
+  coord_fixed() + 
+  scale_fill_gradient(low = "#eaaa00", high = "#5a0722")
+  
+
+#This also works
+#ggplot(df, aes(x, y, fill = z)) +
+#geom_raster()
+```
