@@ -1,10 +1,220 @@
 ---
 title: "STAT321/421"
 author: "Gregory J. Matthews"
-format: revealjs
+format: 
+  revealjs:
+    chalkboard: true
+    slide-number: c/t
+    code-line-numbers: false
+    linestretch: 1.25
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 editor: visual
 execute: 
   echo: true
 ---
 
-#
+## Numerical Accuracy
+ - How does R actually store numbers? 
+ - [2's complement](https://en.wikipedia.org/wiki/Two%27s_complement) representation.  
+ - The representation of integers on your computer happens at a
+fundamental level, and R has no control over it.
+ - We can check the largest integer allowed on your computer in
+R with .Machine$integer.max
+ 
+```{r}
+.Machine$integer.max
+2^31
+```
+
+## Real Numbers
+ - If you know a number is integer values it makes sense to store it that way.
+ - However, R ususally treats integers the same as real numbers
+and uses ***floating point representation***.
+
+## Real Numbers
+```{r}
+#Defaults to float (i.e. num)
+dat <- data.frame(int = c(1,2,3,4,5),
+num = rnorm(5))
+str(dat)
+
+#Can force it to be integer though.
+dat$int <- as.integer(dat$int)
+str(dat)
+```
+
+## Real Numbers
+ - Floating point representation is based on binary scientific
+notation.
+ - $x = d_0.d_1 d_2 ... d_n \times 10^m$
+   - Mantissa: $d_0.d_1 d_2 ... d_n$
+   - Exponent: $m$
+```{r}
+1.2e3
+
+8.675309e5
+```
+ - The `e` here in R should always be read as "ten to the power".
+ 
+## Real numbers
+ - In practice, the size of the mantissa and exponent must be
+limited.
+ - In double precision eight bytes (64 bits) are used to represent floating point numbers.
+    - 1 bit for the sign
+    - 52 bits for the mantissa
+    - 11 bits for the exponent
+  - $m$ can take on values between -1023 and 1024.
+  
+## Real Numbers
+ - Extremes: 
+    - Smallest numbers: $2^{-1074}$
+    - Largest numbers: $2^{1023}$
+  - In base 10, double precision if roughly equivalent to 16
+significant figures and exponents up to size $\pm$ 308.
+
+## Real Numbers
+
+```{r}
+#NaN
+0/0
+#Inf
+1/0
+#Non zero
+2^-1074 == 0
+#Too small to distnguish from zero
+2^-1075 == 0
+#fine
+10^308
+#too big
+10^309
+```
+
+## Your machine
+
+```{r}
+#Information about your machione
+.Machine
+```
+
+## Significant digits
+
+ - I Double precision is approximately equivalent to using 16
+significant digits in base 10.
+ - Beyond this range though there is round-off error.
+
+## Time
+ - Measuring how long something takes to run in R.  
+ 
+```{r}
+library(tictoc)
+tic()
+x <- rnorm(10000)
+toc()
+
+tic()
+x <- rnorm(10000000)
+toc()
+```
+
+## Time
+
+ - Often times the time to run a function will depend on the
+inputs.
+ - Example: Sorting or summing a vector depends on $n$.
+ - Example: Finding the roots of a function up to some
+tolerance level $\epsilon$ depends on $\epsilon$.
+ - Since we can't test all possible inputs, we need a theoretical way to measure how long a program will take to run.
+ - "We do this by counting the number of operations executed in running a program, where operations are tasks such as
+addition, multiplication, logical comparison, variable
+assignment, and calling built-in functions."
+
+## Time
+
+ - But in practice, if, for example, the number of operations
+grows by $an^b$ where $n$ is the problem size, $b$ is much more important than $a$.
+ - So we don't count operations exactly. We just need to know
+how fast they grow.
+
+## O! Hai 
+
+ - Definition: Lets say we have two functions $f$ and $g$ both functions of $n$. Then we say that:
+ 
+ $f(n) = \mathcal{O}(g(n))$ as $n \to \infty$ if 
+
+$$
+\lim_{n\to\infty}\frac{f(n)}{g(n)}<\infty
+$$
+
+$f(n) = o(g(n))$ as $n \to \infty$ if 
+
+$$
+\lim_{n\to\infty}\frac{f(n)}{g(n)}=0
+$$ 
+
+## Time
+ - Example 1 required $\mathcal{O}(n)$ operations to sum a vector.
+ - Example 2 was $\mathcal{O}(\frac{1}{\epsilon^2})$.
+ - Variable assignments, addition, and subtraction are quick. 
+ - Multiplication and division take longer.  Powers take even longer than that. 
+ - sin and log, for example, take even longer.  
+ - And user defined functions take even longer than that.  
+ - In practice, we identify the longest function and count how many times that will occur.  
+
+
+## Preallocation
+
+```{r}
+#Pre-allocation
+tic()
+n <- 1000000
+x <- rep(0, n)
+for (i in 1:n){
+  x[i] <- i ^ 2
+}
+toc()
+
+#No pre-allocation
+tic()
+x <- c()
+for (i in 1:n){
+  x[i] <- i ^ 2
+}
+toc()
+```
+
+## Speed 
+  - Vectors are generally faster than loops in R.
+  - I This is because R has to "translate" the code into a lower level language and than back again. Vectors do this all in one step.
+ - Many functions in R can be vectorized.
+ - Side note: If we can't vectorize a function but loops are slow, we can write the code in C or Fortran and call it from R.
+ 
+## Speed
+```{r}
+#Consider Loop:
+tic()
+for (i in 1:length(x)) {
+  x[i] <- x[i] ^ 2
+}
+toc()
+#vs vectorized
+tic()
+x <- x^2
+toc()
+```
+
+## Some final thoughts
+ - Memory comes in different forms.
+ - Think of RAM (random access memory) as fast and the hard
+disk as slow.
+ - RAM used to be expensive and in short supply on computers;
+not so today.
+ - So we generally store variables in RAM.
+ - If a vector is too large, you run out of memory.
+ - R has an absolute limit on the length of vectors of $2^{31} - 1$.
+ 
+## Some final thoughts
+
+ - If you need to clear up space the `rm()` function will remove objects. 
+ - If you want to save objects externally `save()` will save one object. (`save.image()` will save the entire workspace.)
