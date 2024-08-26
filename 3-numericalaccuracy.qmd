@@ -1,0 +1,10 @@
+---
+title: "STAT321/421"
+author: "Gregory J. Matthews"
+format: revealjs
+editor: visual
+execute: 
+  echo: true
+---
+
+#
