@@ -1,0 +1,131 @@
+---
+title: "STAT321/421"
+author: "Gregory J. Matthews"
+format: 
+  revealjs:
+    chalkboard: true
+    slide-number: c/t
+    code-line-numbers: false
+    linestretch: 1.25
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+editor: visual
+execute: 
+  echo: true
+---
+
+## Rootfinding
+ - Newton-Raphson method
+ - secant method
+ - bisection method
+ 
+## Recall
+ - A ***root*** is a solution to the equation $f(x) = 0$.  
+ - i.e. Where doe sthe curve cross the $x$-axis? 
+ - How is this useful to us in statistics? 
+ - Least squares estimation (LSE) is simply a root finding problem.  
+ 
+## Newton-Raphson
+ - Consider a function $f$ that is differentiable with continuous derivative $f'$ and a root at $a$.  
+ - Let $x_0 \in \mathbb{R}$ and $x_0$ is the best guess of $a$.
+ - Now consider a line through the point $(x_0, f(x_0))$ and slope $f'(x_0)$.  This is the best straight line approximation of $f(x_0)$.
+ - The equation of this line is $f'(x_0) = \frac{f(x_0)-y}{x_0-x}$. 
+ 
+## Newton-Raphson
+ - This straight line crosses the x-axis at a point, say $x_1$.  This should be a better guess for $a$ than $x_0$.  
+ - To find $x_1$, let $y=0$ and $x=x_1$.  This yields $x_1 = x_0 - \frac{f(x_0)}{f'(x_0)}$. 
+ - Generally:
+
+$$
+x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}
+$$
+
+## Newton-Raphson
+::: {.smaller}
+
+ - If $f$ is "well-behaved" at $a$ (i.e. $f'(a) \ne 0$ and $f''$ is finite and continuous at $a$) then $x_n$ will quickly converge to $a$.  
+ - If $x_n \rightarrow a$, and since $f$ and $f'$ are continuous:
+ 
+$$
+a = \lim_{n\rightarrow \infty} x_{n+1} = \lim_{n\rightarrow \infty} \left (x_n - \frac{f(x_n)}{f'(x_n)}\right)
+$$
+
+
+$$
+ = \lim_{n\rightarrow \infty} x_n - \frac{f\left(\underset{n \rightarrow \infty}{\lim} x_n\right)}{f'\left(\underset{n \rightarrow \infty}{\lim} x_n\right)} = a - \frac{f(a)}{f'(a)}
+$$
+:::
+
+## Newton-Raphson
+ - In order for this to be true, $f(a) = 0$ (as long as $f'(a) \ne \pm \infty$) which is a root. A good stopping criteria is when $|f(x_n)| < \epsilon$ for some $\epsilon$.
+
+## Newton-Rapson: Example
+```{r}
+f <- function(x){x^3 + x^2 + x - 1}
+fprime <- function(x){3*x^2 + 2*x + 1}  
+
+xvec <- c()
+#Initialize vector
+xvec[1] <- 0
+
+for (i in 2:10){
+xvec[i] <- xvec[i-1] - f(xvec[i-1])/fprime(xvec[i-1])
+}
+xvec
+```
+## Newton-Rapson: Different starting values
+```{r}
+#| echo: false
+niter <- 12
+d <- data.frame()
+for (q in seq(-10,10,3)){
+xvec <- c()
+#Initialize vector
+xvec[1] <- q
+
+for (i in 2:niter){
+xvec[i] <- xvec[i-1] - f(xvec[i-1])/fprime(xvec[i-1])
+}
+d <- rbind(d,data.frame(x = 1:niter,y = xvec, q = q))
+}
+library(tidyverse)
+
+ggplot(aes(x = x, y = y, color = factor(q)), data = d) + geom_path(show.legend = FALSE) + geom_point(show.legend = FALSE) 
+
+```
+
+## Newton-Rapson: Different starting values
+```{r}
+#| echo: false
+niter <- 12
+d <- data.frame()
+for (q in seq(-100,100,11)){
+xvec <- c()
+#Initialize vector
+xvec[1] <- q
+
+for (i in 2:niter){
+xvec[i] <- xvec[i-1] - f(xvec[i-1])/fprime(xvec[i-1])
+}
+d <- rbind(d,data.frame(x = 1:niter,y = xvec, q = q))
+}
+library(tidyverse)
+
+ggplot(aes(x = x, y = y, color = factor(q)), data = d) + geom_path(show.legend = FALSE) + geom_point(show.legend = FALSE) 
+
+```
+
+
+## Newton Raphson in R: Uniroot
+ - Uses Newton-Raphson
+ - https://rpubs.com/aaronsc32/newton-raphson-method
+ 
+## BOBYQA
+ - Works great in lme4.  
+```{r}
+library(nloptr)
+bobyqa
+```
+ 
+ 
