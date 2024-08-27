@@ -117,8 +117,11 @@ NA
  - [Convex Optimization](https://www.stat.cmu.edu/~ryantibs/convexopt/)
  - [Introduction to Statistical Learning](https://www.statlearning.com/)
 
+# Homework, Exams, and Project
+All homework, both exams, and the project must be submitted as either a .pdf or an .html file.  I will not accept the following formats: .R, .Rmd, .qmd, .doc, .docx, .xlsx, .py.   All homework, both exams, and the project must be submitted to Sakai by the deadline.  Anything submitted past the deadline will receive a grade of 0.  
+
 # Evaluation and Grading 
- - 8 homework assignemnts (25%)
+ - 8 homework assignments (25%)
  - Exam 1 (25%) (Approximately Week 8)
  - Exam 2 (25%)
  - One final project (25%) (Undergraduates will work in groups of 2 or 3; grad students will work individually)
