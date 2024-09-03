@@ -39,10 +39,25 @@ and uses ***floating point representation***.
 dat <- data.frame(int = c(1,2,3,4,5),
 num = rnorm(5))
 str(dat)
+object.size(dat$int)
 
 #Can force it to be integer though.
 dat$int <- as.integer(dat$int)
 str(dat)
+object.size(dat$int)
+```
+## Real Numbers
+```{r}
+#Defaults to float (i.e. num)
+dat <- data.frame(int = as.numeric(c(1:1000000)),
+num = rnorm(5))
+str(dat)
+object.size(dat$int)
+
+#Can force it to be integer though.
+dat$int <- as.integer(dat$int)
+str(dat)
+object.size(dat$int)
 ```
 
 ## Real Numbers
