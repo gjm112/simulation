@@ -41,7 +41,7 @@ ggplot(aes(x = bill_length_mm),data = penguins) + geom_boxplot()
 
 ```{r}
 ggplot(aes(x = species),data = penguins) + 
-  geom_bar()
+  geom_bar(fill= "red")
 ```
 
 ## Barplot 
