@@ -207,7 +207,7 @@ f <- function(x){
   out <- x^3 - 2*x^2 + x - 10
   return(out)
 }
-a <- uniroot(f, c(-10,10))
+uniroot(f, c(-10,10))
 ```
 
 ## Secant Method
@@ -218,6 +218,45 @@ a <- uniroot(f, c(-10,10))
 
 ## Secant Method
 Write the code to implement this in class!
+
+```{r}
+#find the roots of this function f
+f <- function(x){
+  out <- (x-2)*(x-5)*(x+38)*(x-7)
+  return(out)
+}
+#The Secant method!!!
+secant <- function(f, x0 = c(0,1), max.iter = 100, tol = 0.00001){
+  
+  x <- x0
+  n <- 2
+  eps <- 1000
+  while (n < max.iter & eps > tol) {
+    
+    x[n + 1] <- x[n] - f(x[n]) * ((x[n] - x[n - 1]) / (f(x[n]) - f(x[n - 1])))
+    
+    eps <- abs(f(x[n+1]))
+    n <- n + 1
+    
+  }
+  
+return(x)  
+  
+}
+
+
+secant(f)
+secant(f,x0 = c(-40,-30))
+greg <- secant(f,x0 = c(-4000,3000))
+secant(f,x0 = c(10,11))
+
+
+
+
+
+
+
+```
 
 
 ## Bisection method
