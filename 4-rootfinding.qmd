@@ -59,6 +59,75 @@ $$
 
 ## Newton-Raphson
  - In order for this to be true, $f(a) = 0$ (as long as $f'(a) \ne \pm \infty$) which is a root. A good stopping criteria is when $|f(x_n)| < \epsilon$ for some $\epsilon$.
+ 
+## Newton Rapshon visualization 
+
+```{r}
+#| echo: false
+ftn <- function(x){
+  fx <- x^3 + 2*x^2 + x - 3
+  dfx <- 3*x^2 + 4*x + 1
+  return(c(fx,dfx))
+}
+x <- c(-500:500)/100
+fx <- x^3 + 2*x^2 + x - 3
+plot(x,fx,type="l")
+abline(h=0)
+x<-c()
+x[1] <- 5
+points(x[1],ftn(x[1])[1],pch=16)
+
+``` 
+
+## Newton Rapshon visualization 
+
+```{r}
+#| echo: false
+ftn <- function(x){
+  fx <- x^3 + 2*x^2 + x - 3
+  dfx <- 3*x^2 + 4*x + 1
+  return(c(fx,dfx))
+}
+x <- c(-500:500)/100
+fx <- x^3 + 2*x^2 + x - 3
+plot(x,fx,type="l")
+abline(h=0)
+x<-c()
+x[1] <- 5
+points(x[1],ftn(x[1])[1],pch=16)
+x[2] <- x[1] - ftn(x[1])[1]/ftn(x[1])[2]
+points(c(x[1],x[2]),c(ftn(x[1])[1],0),type="l")
+points(c(x[1],x[2]),c(ftn(x[1])[1],0),pch=16)
+
+``` 
+ 
+
+ 
+## Newton Rapshon visualization 
+
+```{r}
+#| echo: false
+ftn <- function(x){
+  fx <- x^3 + 2*x^2 + x - 3
+  dfx <- 3*x^2 + 4*x + 1
+  return(c(fx,dfx))
+}
+x <- c(-500:500)/100
+fx <- x^3 + 2*x^2 + x - 3
+plot(x,fx,type="l")
+abline(h=0)
+x<-c()
+x[1] <- 5
+points(x[1],ftn(x[1])[1],pch=16)
+x[2] <- x[1] - ftn(x[1])[1]/ftn(x[1])[2]
+points(c(x[1],x[2]),c(ftn(x[1])[1],0),type="l")
+points(c(x[1],x[2]),c(ftn(x[1])[1],0),pch=16)
+x[3] <- x[2] - ftn(x[2])[1]/ftn(x[2])[2]
+points(c(x[2],x[2]),c(ftn(x[2])[1],0),type="l")
+points(c(x[2],x[3]),c(ftn(x[2])[1],0),type="l")
+points(c(x[2],x[3]),c(ftn(x[2])[1],0),pch=16)
+```
+
 
 ## Newton-Rapson: Example
 ```{r}
@@ -115,12 +184,55 @@ library(tidyverse)
 ggplot(aes(x = x, y = y, color = factor(q)), data = d) + geom_path(show.legend = FALSE) + geom_point(show.legend = FALSE) 
 
 ```
-
-
 ## Newton Raphson in R: Uniroot
  - Uses Newton-Raphson
  - https://rpubs.com/aaronsc32/newton-raphson-method
  
+
+## Example of uniroot
+```{r}
+#| echo: false
+f <- function(x){
+  out <- x^3 - 2*x^2 + x - 10
+  return(out)
+}
+
+plot(seq(-2,5,.1),f(seq(-2,5,.1)),type = "l")
+abline(h = 0)
+```
+
+## Example of uniroot
+```{r}
+f <- function(x){
+  out <- x^3 - 2*x^2 + x - 10
+  return(out)
+}
+a <- uniroot(f, c(-10,10))
+```
+
+## Secant Method
+- $x_{n+1} = x_n - f(x_n)\frac{x_n - x_{n-1}}{f(x_n)- f(x_{n-1})}$
+- Does not require a derivative. 
+- Slower than Newton-Raphson, but...we don't need a derivative.
+- Not guaranteed to converge.
+
+## Secant Method
+Write the code to implement this in class!
+
+
+## Bisection method
+- Start with $x_l < x_r$ such that $f(x_l)f(x_r) < 0$
+  1.  if $x_r - x_l \le \epsilon$, then stop. 
+  2.  put $x_m = (x_l + x_r)/2$; if $f(x_m) = 0$ then stop.  
+  3.  if $f(x_l)f(x_m) < 0$ then put $x_r = x_m$ otherwise put $x_l = x_m$.  
+  4.  go back to step 1. 
+- Creates iterative bounds in which the solution must lie.  
+- Slower, but more reliable. 
+
+## Bisection method
+Write the code to implement this in class!
+
+
 ## BOBYQA
  - Works great in lme4.  
 ```{r}
