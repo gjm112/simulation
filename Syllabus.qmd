@@ -1,6 +1,6 @@
 ---
 title: "Syllabus: STAT321/COMP421/STAT421/COMP421"
-format: html
+format: pdf
 editor: source
 ---
 

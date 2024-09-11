@@ -17,8 +17,9 @@ execute:
 
 ## Rootfinding
  - Newton-Raphson method
- - secant method
- - bisection method
+ - Secant method
+ - Bisection method
+ - Regula Falsi
  
 ## Recall
  - A ***root*** is a solution to the equation $f(x) = 0$.  
@@ -269,14 +270,408 @@ secant(f,x0 = c(10,11))
 - Slower, but more reliable. 
 
 ## Bisection method
-Write the code to implement this in class!
-
-
-## BOBYQA
- - Works great in lme4.  
 ```{r}
-library(nloptr)
-bobyqa
+#Bisection method 
+#a is left bound of initial interval
+#b is right bound of initial interval
+bisection <- function(f,a,b,eps = 0.001){
+  if (f(a)*f(b) >= 0){return("Nice try! Please, provide and interval that contains a root")}
+  
+  while (b - a > eps){
+    midpoint <- (a + b)/2
+    if (f(midpoint) == 0){return(midpoint)}
+    
+    if (f(a)*f(midpoint) < 0){b <- midpoint } else {a <- midpoint}
+    
+  }
+  
+  return(c(a,b))
+  
+  
+}
+
+bisection(f,a = 0, b = 1)
 ```
+
+## An example
+```{r}
+f <- function(x){
+  exp(x/2) - x - 2
+}
+```
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+```
+
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+
+
+#Initial points
+points(c(2,2),c(10,10), col = "blue", type = "l")
+points(c(4,4),c(10,10), col = "blue", type = "l")
+
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+```
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+
+
+#Initial points
+points(c(2,2),c(-10,10), col = "blue", type = "l")
+points(c(4,4),c(-10,10), col = "blue", type = "l")
+
+a <- 2
+b <- 4
+midpoint <- (a+b)/2
+if (f(a)*f(midpoint) < 0){b <- midpoint } else {a <- midpoint}
+
+points(midpoint,0, col = "blue", pch = 16)
+
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+```
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+
+
+#Initial points
+points(c(a,a),c(-10,10), col = "blue", type = "l")
+points(c(b,b),c(-10,10), col = "blue", type = "l")
+
+midpoint <- (a+b)/2
+if (f(a)*f(midpoint) < 0){b <- midpoint } else {a <- midpoint}
+
+points(midpoint,0, col = "blue", pch = 16)
+
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+```
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+
+
+#Initial points
+points(c(a,a),c(-10,10), col = "blue", type = "l")
+points(c(b,b),c(-10,10), col = "blue", type = "l")
+
+midpoint <- (a+b)/2
+if (f(a)*f(midpoint) < 0){b <- midpoint } else {a <- midpoint}
+
+points(midpoint,0, col = "blue", pch = 16)
+
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+```
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+
+
+#Initial points
+points(c(a,a),c(-10,10), col = "blue", type = "l")
+points(c(b,b),c(-10,10), col = "blue", type = "l")
+
+midpoint <- (a+b)/2
+if (f(a)*f(midpoint) < 0){b <- midpoint } else {a <- midpoint}
+
+points(midpoint,0, col = "blue", pch = 16)
+
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+```
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+
+
+#Initial points
+points(c(a,a),c(-10,10), col = "blue", type = "l")
+points(c(b,b),c(-10,10), col = "blue", type = "l")
+
+midpoint <- (a+b)/2
+if (f(a)*f(midpoint) < 0){b <- midpoint } else {a <- midpoint}
+
+points(midpoint,0, col = "blue", pch = 16)
+
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+```
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+
+
+#Initial points
+points(c(a,a),c(-10,10), col = "blue", type = "l")
+points(c(b,b),c(-10,10), col = "blue", type = "l")
+
+midpoint <- (a+b)/2
+if (f(a)*f(midpoint) < 0){b <- midpoint } else {a <- midpoint}
+
+points(midpoint,0, col = "blue", pch = 16)
+
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+```
+
+## Regula Falsi
+
+ - Similar to bisection method, but guesses are "better". 
+ - Our choice of where to split the interval is based on the secant line between the two points.  
+  
+
+## Regula Falsi Algorithm
+
+ - Start with $x_l < x_r$ such that $f(x_l)f(x_r) < 0$
+  1.  if $x_r - x_l \le \epsilon$, then stop. 
+  2.  put $x_m = \frac{x_lf(x_r) - x_rf(x_l)}{f(x_r) - f(x_l)}$; if $f(x_m) = 0$ then stop.  
+  3.  if $f(x_l)f(x_m) < 0$ then put $x_r = x_m$ otherwise put $x_l = x_m$.  
+  4.  go back to step 1. 
+
+
+## Regula Falsi method
+```{r}
+#Regula Falsi method 
+#a is left bound of initial interval
+#b is right bound of initial interval
+regula <- function(f,a,b,eps = 0.001){
+  if (f(a)*f(b) >= 0){return("Nice try! Please, provide and interval that contains a root")}
+  
+  while (b - a > eps){
+    midpoint <- (a*f(b) - b*f(a))/(f(b) - f(a))
+    if (f(midpoint) < 0.001){return(midpoint)}
+    
+    if (f(a)*f(midpoint) < 0){b <- midpoint} else {a <- midpoint}
+    
+  }
+  
+  return(c(a,b))
+  
+  
+}
+
+regula(f,a = 0, b = 4.5)
+```
+
+## An example
+```{r}
+f <- function(x){
+  exp(x/2) - x - 2
+}
+```
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+```
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+
+#Initial points
+points(c(2,2),c(f(2),0), col = "blue", type = "l")
+points(c(4,4),c(f(4),0), col = "blue", type = "l")
+```
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+
+#Initial points
+points(c(2,2),c(f(2),0), col = "blue", type = "l")
+points(c(4,4),c(f(4),0), col = "blue", type = "l")
+points(c(2,4),f(c(2,4)), col = "blue", pch = 16)
+points(c(2,4),f(c(2,4)), col = "blue", type = "l")
+
+a <- 2
+b <- 4
+midpoint <- (a*f(b) - b*f(a))/(f(b) - f(a))
+
+points(midpoint,0, col = "blue", pch = 16)
+```
+
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+
+#Initial points
+points(c(midpoint,midpoint),c(f(midpoint),0), col = "blue", type = "l")
+points(c(4,4),c(f(4),0), col = "blue", type = "l")
+points(c(midpoint,4),f(c(midpoint,4)), col = "blue", pch = 16)
+points(c(midpoint,4),f(c(midpoint,4)), col = "blue", type = "l")
+
+a <- midpoint
+b <- 4
+midpoint <- (a*f(b) - b*f(a))/(f(b) - f(a))
+
+points(midpoint,0, col = "blue", pch = 16)
+```
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+
+#Initial points
+points(c(midpoint,midpoint),c(f(midpoint),0), col = "blue", type = "l")
+points(c(4,4),c(f(4),0), col = "blue", type = "l")
+points(c(midpoint,4),f(c(midpoint,4)), col = "blue", pch = 16)
+points(c(midpoint,4),f(c(midpoint,4)), col = "blue", type = "l")
+
+a <- midpoint
+b <- 4
+midpoint <- (a*f(b) - b*f(a))/(f(b) - f(a))
+
+points(midpoint,0, col = "blue", pch = 16)
+```
+
+## Example
+
+```{r}
+#| echo: false
+x <- seq(-5,5,.1)
+plot(x,f(x),type = "l")
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+points(-1.536,f(-1.536), col = "red", pch = 16)
+points(3.35669,f(3.35669), col = "red", pch = 16)
+
+#Initial points
+points(c(midpoint,midpoint),c(f(midpoint),0), col = "blue", type = "l")
+points(c(4,4),c(f(4),0), col = "blue", type = "l")
+points(c(midpoint,4),f(c(midpoint,4)), col = "blue", pch = 16)
+points(c(midpoint,4),f(c(midpoint,4)), col = "blue", type = "l")
+
+a <- midpoint
+b <- 4
+midpoint <- (a*f(b) - b*f(a))/(f(b) - f(a))
+
+points(midpoint,0, col = "blue", pch = 16)
+```
+
+<!-- ## Newton Raphson Taylor Expansion: A note -->
+
+
+<!-- ## BOBYQA -->
+<!--  - Works great in lme4.   -->
+<!-- ```{r} -->
+<!-- library(nloptr) -->
+<!-- bobyqa -->
+<!-- ``` -->
  
+ 
+## Root Finding Application: percentiles of pdfs
+ - Find the median of a $\chi^2$-distribution with 10 degrees of freedom.
+ - Let $f(x)$ be the pdf and $F(x)$ be the cdf.  
+ - The median $x$ is the value where $F(x) = 0.5$.
+ - We need to solve for $x$ such that $F(x) - 0.5 = 0$.  
+ - It's a root finding problem!
+
+
+## The code
+ - Let's use the bisection function that we just wrote.
+
+```{r}
+#cdf of a chi-squared distribution: 
+target <- function(x){
+  pchisq(x,10) - 0.5
+}
+
+#Find the root
+bisection(target, 1,20)
+```  
+
+```{r}
+#The answer the "easy" way
+qchisq(0.5,10)
+```
  
