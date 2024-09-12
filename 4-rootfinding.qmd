@@ -669,6 +669,10 @@ target <- function(x){
 #Find the root
 bisection(target, 1,20)
 ```  
+```{r}
+#using uniroot
+uniroot(target, c(1,20))$root
+```
 
 ```{r}
 #The answer the "easy" way
