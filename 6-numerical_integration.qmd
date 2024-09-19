@@ -16,8 +16,95 @@ execute:
 ---
 
 ## Numerical Integration
- - Newton-Raphson method
- - Secant method
- - Bisection method
- - Regula Falsi
+ - Trapezoidal Rule
+ - Simpson's Rule
+ - Monte Carlo Integration
+ 
+## What are we doing?
+If we can write down $F$ is closed form we can use Fundamental Theorem of Calculus:
+$$
+\int_a^b f(x) dx = F(b) - F(a)
+$$
+
+ - But we can't always write out $F$.  So we approximate.  
+ - Basic strategy: subdived the interval $[a,b]$ into $n$ sub-regions then evaluate the integral in each sub-region and add up all the small approximations.  
+ - The length of each sub-region is $h = \frac{b-a}{n}$.
+
+## slide
+```{r}
+#| echo = FALSE
+f<-function(x){
+  out <- sin(x)+1
+  return(out)
+}
+x<-seq(-5,6,0.1)
+plot(x,f(x),type="l")
+abline(h=0)
+```
+
+## slide
+```{r}
+#| echo: false
+f<-function(x){
+  out <- sin(x)+1
+  return(out)
+}
+x<-seq(-5,6,0.1)
+plot(x,f(x),type="l", main = "n = 5")
+abline(h=0)
+n <- 5
+a <- -2
+b <- 5
+trap <- seq(a,b,length=n)
+points(trap,f(trap),type="l",lty=3)
+#points(trap,f(trap),pch=16)
+for (i in 1:n){
+  polygon(c(trap[c(i,i,i+1,i+1)]),c(0,f(trap[i]),f(trap[i+1]),0),col = rgb(1,0,0,0.5), lwd = 0.0001)
+}
+```
+
+## slide
+```{r}
+#| echo: false
+f<-function(x){
+  out <- sin(x)+1
+  return(out)
+}
+x<-seq(-5,6,0.1)
+plot(x,f(x),type="l", main = "n = 10")
+abline(h=0)
+n <- 10
+a <- -2
+b <- 5
+trap <- seq(a,b,length=n)
+points(trap,f(trap),type="l",lty=3)
+#points(trap,f(trap),pch=16)
+for (i in 1:n){
+  polygon(c(trap[c(i,i,i+1,i+1)]),c(0,f(trap[i]),f(trap[i+1]),0),col = rgb(1,0,0,0.5), lwd = 0.0001)
+}
+```
+
+## Slide
+```{r}
+#| echo: false
+f<-function(x){
+  out <- sin(x)+1
+  return(out)
+}
+x<-seq(-5,6,0.1)
+plot(x,f(x),type="l", main = "n = 25")
+abline(h=0)
+n <- 25
+a <- -2
+b <- 5
+trap <- seq(a,b,length=n)
+#points(trap,f(trap),type="l",lty=3)
+#points(trap,f(trap),pch=16)
+for (i in 1:n){
+  polygon(c(trap[c(i,i,i+1,i+1)]),c(0,f(trap[i]),f(trap[i+1]),0),col = rgb(1,0,0,0.5), lwd = 0.001)
+}
+```
+
+
+
  
