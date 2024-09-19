@@ -713,7 +713,7 @@ plot(1:length(x),x, xlab = "iteration", type  ="l")
 abline(h = 1.38629, col = "red")
 ```
 
-## Example
+## Example starting farther away
 ```{r}
 #Choose x0
 x <- c()
@@ -738,14 +738,15 @@ while (temp > 0.001) {
 }
 ```
 
-## Example
+## Example starting farther away
 ```{r}
 #| echo: false
 plot(1:length(x),x, xlab = "iteration", type  ="l")
 abline(h = 1.38629, col = "red")
 ```
 
-## Example with larger epsilon
+## Example with larger $\sigma^2$
+
 ```{r}
 #Choose x0
 x <- c()
@@ -770,14 +771,14 @@ while (temp > 0.001) {
 }
 ```
 
-## Example
+## Example with larger $\sigma^2$
 ```{r}
 #| echo: false
 plot(1:length(x),x, xlab = "iteration", type  ="l")
 abline(h = 1.38629, col = "red")
 ```
 
-## Example with larger epsilon
+## Example with larger $\sigma^2$ and starting farther away
 ```{r}
 #Choose x0
 x <- c()
@@ -802,7 +803,7 @@ while (temp > 0.001) {
 }
 ```
 
-## Example
+## Example with larger $\sigma^2$ and starting farther away
 ```{r}
 #| echo: false
 plot(1:length(x),x, xlab = "iteration", type  ="l")
@@ -834,14 +835,14 @@ while (temp > 0.001) {
 }
 ```
 
-## Example
+## Example: What if we start really far away?
 ```{r}
 #| echo: false
 plot(1:length(x),x, xlab = "iteration", type  ="l")
 abline(h = 1.38629, col = "red")
 ```
 
-## Example: What if we start really far away? 
+## Example: What if we start really far away, but let $\sigma^2$ be larger?
 ```{r}
 #Choose x0
 x <- c()
@@ -867,7 +868,7 @@ while (temp > 0.001) {
 }
 ```
 
-## Example
+## Example: What if we start really far away, but let $\sigma^2$ be larger?
 ```{r}
 #| echo: false
 plot(1:length(x),x, xlab = "iteration", type  ="l")
@@ -899,7 +900,7 @@ while (temp > 0.001) {
 }
 ```
 
-## Example
+## Example: Slower cooling schedule
 ```{r}
 #| echo: false
 plot(1:length(x),x, xlab = "iteration", type  ="l")
@@ -922,6 +923,7 @@ lm(y~x)$coef
 abline(a = 10, b = 3, col = "red")
 abline(a = 8.106, b = 2.352, col = "red", lty = 3)
 ```
+
 ## The surface
 
 ```{r}
@@ -941,8 +943,51 @@ for (i in 1:nrow(dat)){
 ggplot() + geom_tile(aes(x = beta0, y = beta1,fill = log(z)), data = dat)  + geom_point(aes(x = 8.106, y = 2.352), col = "red", size = 3) + scale_fill_continuous(type = "viridis") 
 ```
 
+## LSE with simulated annealing
+Code goes here.
+
+
 ## Traveling Salesman
-Go through the code here.  
+```{r}
+#| eval: false
+state <- read.csv("https://raw.githubusercontent.com/jasperdebie/VisInfo/master/us-state-capitals.csv")
+
+f <- function(temp){
+tot <- sum((temp[-nrow(temp),"latitude"]- temp[-1,"latitude"])^2 + (temp[-nrow(temp),"longitude"]- temp[-1,"longitude"])^2)
+return(tot)
+}
+```  
+
+## Traveling Salesman
+```{r}
+#| eval: false
+perm <- best <- 1:50
+ttt <- 1000
+for (i in 1:1000){print(f(state[best,]))
+cand <- sample(perm,50,replace = FALSE)
+dif <-  f(state[cand,]) - f(state[best,])  
+p <- exp(-dif/ttt)
+if (dif <= 0){best <- cand}
+if (dif > 0 & runif(1) < p){best <- cand}
+}
+```
+
+## Traveling Salesman
+```{r}
+#| eval: false
+ttt <- 1000
+for (i in 1:100000){print(f(state[best,]))
+  #this is better!
+  ind <- sample(perm,2,replace = FALSE)
+  cand <- best
+  cand[ind] <- best[c(ind[2],ind[1])]
+  dif <-  f(state[cand,]) - f(state[best,])  
+  p <- exp(-dif/ttt)
+  if (dif <= 0){best <- cand}
+  if (dif > 0 & runif(1) < p){best <- cand}
+}
+```
+
 
 ## Traveling Salesman
 ```{r}
@@ -1003,9 +1048,12 @@ ggplot(data=usa, aes(x=long, y=lat)) +
  - There is no closed form solution!  
  - Must be solved for numerically!
  - Find the MLE for the degrees of freedom if you observe the following data points: 46.32, 39.78, 40.90, 47.48, 41.25
+
  
 ## MLE example  
 ```{r}
+#| eval: FALSE
+#| label: quang
 x <- c(46.32, 39.78, 40.90, 47.48, 41.25)
 
 #Compute log likelihood
@@ -1015,11 +1063,17 @@ ll <- function(theta){
 }
 
 ll <- Vectorize(ll)
-ll(20)
 
 plot(seq(0.1,100,0.1),ll(seq(0.1,100,0.1)), type = "l", xlab = "theta",ylab = "ll")
 ```
 
+## MLE example: The log-likelihood
+```{r}
+#| echo: FALSE
+#| ref-label: quang
+```
+
+## MLE Example
 
 ```{r}
 ll <- function(theta){
@@ -1032,6 +1086,11 @@ optimize(ll, c(1,100), maximum = TRUE)
 
 # True degrees of freedom was 42. 
 ```
+
+## MLE Example: With simulated annealing
+Do example in class.  
+Code goes here.  
+
 
 
 ## Appendix
