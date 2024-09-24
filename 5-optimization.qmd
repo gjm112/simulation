@@ -915,11 +915,11 @@ Do it in class.
 ```{r}
 #| echo: false
 set.seed(1234)
-x <- rnorm(20)
-y <- 10 + 3*x + rnorm(20,0,3)
-plot(x, y)
+xvec <- rnorm(20)
+y <- 10 + 3*xvec + rnorm(20,0,3)
+plot(xvec, y)
 print("beta0 = 10, beta1 = 3")
-lm(y~x)$coef
+lm(y~xvec)$coef
 abline(a = 10, b = 3, col = "red")
 abline(a = 8.106, b = 2.352, col = "red", lty = 3)
 ```
@@ -928,7 +928,7 @@ abline(a = 8.106, b = 2.352, col = "red", lty = 3)
 
 ```{r}
 lse <- function(beta){
-  yhat <- beta[1] + beta[2]*x
+  yhat <- beta[1] + beta[2]*xvec
   sum((y - (yhat))^2)
 }
 ```
@@ -944,7 +944,46 @@ ggplot() + geom_tile(aes(x = beta0, y = beta1,fill = log(z)), data = dat)  + geo
 ```
 
 ## LSE with simulated annealing
-Code goes here.
+```{r}
+#Goal: Minimize thie function lse
+lse <- function(beta){
+  yhat <- beta[1] + beta[2]*xvec
+  sum((y - (yhat))^2)
+}
+
+lse(c(3,4))
+
+
+niter <- 10000
+x <- matrix(NA, ncol = 2, nrow = niter)
+x[1,] <- c(8,8)
+temp <- 100
+sigma <- 10
+i <- 1
+for (i in 1:(niter-1)) {
+  xnew <- x[i,] + rnorm(2, 0, sigma)
+  if (lse(xnew) < lse(x[i,])) {
+    x[i + 1,] <- xnew
+  } else {
+    p <- exp(-(lse(xnew) - lse(x[i, ])) / temp)
+    if (runif(1) < p) {
+      x[i + 1, ] <- xnew
+    } else {
+      x[i+1,] <- x[i,]
+    }
+  }
+  temp <- 0.99*temp
+}
+
+
+
+
+
+
+
+
+```
+
 
 
 ## Traveling Salesman
