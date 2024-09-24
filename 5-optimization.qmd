@@ -976,7 +976,8 @@ for (i in 1:(niter-1)) {
 }
 
 
-
+plot(x[,1])
+plot(x[,2])
 
 
 
@@ -1137,4 +1138,26 @@ Code goes here.
  - [Maximum likelihood estimation with tensorflow probability and pystan (and now rstan too)](https://jeffpollock9.github.io/maximum-likelihood-estimation-with-tensorflow-probability-and-pystan/)
  
  
+i <- 0:10
+f <- function(x, n = 50){
+  i <- 1:n
+    out <- sum(((-1)^i) * x^i/(factorial(i))^2)
+    return(out)
+}
+f <- Vectorize(f)
+f(10,50)
  
+x <- seq(-1,1,0.1) 
+plot(x, f(x),type = "l")
+abline(h = 0, col = "red")
+
+52 choose 3
+
+factorial(52)/(factorial(3)*factorial(49))
+
+(26 choose 2)*()
+
+choose(26,2)*choose(26,1)/choose(52,3)
+(52*51*50)/(6)
+
+
