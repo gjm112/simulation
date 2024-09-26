@@ -118,6 +118,7 @@ for (ttt in c(100:1)){
 library(maps)
 library(mapdata)
 library(ggplot2)
+best <- c(2,47,44,3,31,6,27,16,36,43,18,42,17,14,22,35,48,20,38,30,7,39,21,19,29,45,34,8,46,32,40,11,10,1,24,4,25,15,13,49,23,33,41,50,26,12,37,28,5,9)
 df <- state[best,]
 usa <- map_data('usa')
 ggplot(data=usa, aes(x=long, y=lat)) + 
@@ -125,7 +126,7 @@ ggplot(data=usa, aes(x=long, y=lat)) +
   theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank(),
         axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) + 
   ggtitle('U.S. Map') + 
-  coord_fixed(1.3) + geom_line(aes(y = latitude, x = longitude), data = df)
+  coord_fixed(1.3) + geom_path(aes(y = latitude, x = longitude), data = df)
 
 df <- state
 usa <- map_data('usa')

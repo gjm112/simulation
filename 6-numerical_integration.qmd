@@ -105,6 +105,282 @@ for (i in 1:n){
 }
 ```
 
+## Trapezoidal Rule
+  - Area of a trapezoid is $\frac{h}{2}(f(x_i)+f(x_{i+1}))$.
+  - $T = \frac{h}{2}(f(x_0)+2f(x_1)+2f(x_2)+\cdots+2f(x_{n-1})+f(x_n))$
+  - Let's write a function to do this.  
+ 
+## Trapezoidal Rule
+Write function here. 
+
+## Trapezoidal Rule
+Now use that function to compute the following: 
+
+  - $P(0 < X < 2)$ where $X \sim t_1$
+  - $f(x) = \frac{1}{\pi\left(1+x^2\right)}$
+  
+## Trapezoidal Rule
+```{r}
+#| echo: false
+ans <- pcauchy(2) - pcauchy(0)
+x <- seq(-5,5,0.01)
+y <- dcauchy(x)
+plot(x,y, type = "l", main = paste0("P(0<X<2) = ", round(ans,4)))
+polygon(c(2,0,seq(0,2,0.1),2),c(0,0,dcauchy(seq(0,2,0.1)),0), col = "red")
+```
+
+## Trapezoidal Rule
+```{r}
+#| echo: false
+ans <- pcauchy(2) - pcauchy(0)
+x <- seq(-5,5,0.01)
+y <- dcauchy(x)
+plot(x,y, type = "l", main = paste0("P(0<X<2) = ", round(ans,4)))
+polygon(c(2,0,seq(0,2,0.1),2),c(0,0,dcauchy(seq(0,2,0.1)),0), col = "red")
+```
 
 
+## Simpson's Rule
+ - Approximates area using parabolas rather than trapezoids.
+ - Must choose $n$ to be even. 
+ - All odd $i$ are weighted with 4 and even $i$ are weighted with 2 (except for 0 and n).
+
+$$
+S = \frac{h}{3}(f(x_0) + 4f(x_1) + 2f(x_2) + 4f(x_3) + \\
+\cdots + 4f(x_{n-1}) + f(x_n))
+$$
+
+## Simpson's Rule
+This seems like a good homework question.....Don't you think?
+
+## Monte Carlo Integration 
+  - We want to evaluate $\int_a^b f(x)dx$. 
+  - Say $f(x) = x^2 + 2$, a = 0, b = 3
+  - $\int_0^3 (x^2 + 2) dx$
+
+## Monte Carlo Integration 
+```{r}
+#| echo: false
+f <- function(x){
+  x^2 + 2
+}
+x <- seq(0,3, 0.01)
+y <- f(x)
+plot(x,y, type = "l")
+```
+## Monte Carlo Integration 
+```{r}
+f(3)
+a <- 0
+b <- 3
+set.seed(1234)
+nsim <- 1000
+ux <- runif(nsim,0,3)
+uy <- runif(nsim,0,11)
+```
+
+## Monte Carlo Integration 
+```{r}
+#| echo: false
+set.seed(1234)
+nsim <- 10000
+ux <- runif(nsim,0,3)
+uy <- runif(nsim,0,11)
+col <- rep("blue",nsim)
+col[f(ux) > uy] <- "red"
+plot(x,y, type = "l", lwd = 2, ylim = c(0,11))
+points(ux,uy, pch = 16, col = col, cex = 0.5)
+```
+
+## Monte Carlo Integration 
+```{r}
+f(3)
+set.seed(1234)
+nsim <- 100000
+ux <- runif(nsim,0,3)
+uy <- runif(nsim,0,11)
+
+# Total area of the "box"
+(b-a)*11
+
+#Fraction below the line
+mean(f(ux) < uy)
+
+#Integral Approx
+(b-a)*11*mean(f(ux) > uy)
+```
+
+## Real answer
+$$
+F(x) = \frac{x^3}{3} + 2x
+$$
+
+## R integration function
+```{r}
+integrate(f,0,3)
+```
+$$
+F(3) - F(0)  = \frac{3^3}{3} + (2)(3) - 0 = 15
+$$
+
+## Estimating $\pi$ with Monte Carlo
+```{r}
+#| echo: false
+h <- function(x,y){
+  if (x^2 + y^2 <= 1){
+    out <- 1
+  } else {
+    out <- 0
+  }
+  return(out)
+}
+h <- Vectorize(h)
+n <- 10000
+x <- runif(n,-1,1)
+y <- runif(n,-1,1)
+col <- rep("red", n)
+col[(x^2 + y^2) <= 1] <- "blue"
+plot(x,y,col=col,pch=16,asp=1, cex = 0.5)
+```
+
+## Estimating $\pi$ with Monte Carlo
+```{r}
+set.seed(1234)
+h <- function(x,y){
+  if (x^2 + y^2 <= 1){
+    out <- 1
+  } else {
+    out <- 0
+  }
+  return(out)
+}
+h <- Vectorize(h)
+n <- 10000
+x <- runif(n,-1,1)
+y <- runif(n,-1,1)
+#This is the percentage of the area the circle takes up.  
+mean(h(x,y))
+#Square has area 4.  So pi is:
+4 * mean(h(x,y))
+```
+
+## How is this an integral?
+$$
+\int_0^1 \int_0^{2\pi} (r)  d\theta dr
+$$
+
+## Monte Carlo Integration
+ - But that approach only works if $f(x) \ge 0$ between $a$ and $b$!
+ - So we need a more general approach.  
+ 
+
+## Monte Carlo Integration
+ - Think about an integral of this form: $\int_a^b f(x)g(x)dx$
+ - We see these quite often in probability and statistics.  
+ - For example $E[X] = \int_{p(x)} f(x)p(x)dx$.
+ - As long as $g(x) \ge 0$, $x\in  (a,b)$ and $\int_a^b g(x) dx = C < \infty$
+ 
+## Monte Carlo Integration
+ - We can then define $p(x) = \frac{g(x)}{C}$ to be a probability function where $C = \int_a^b g(x) dx$
+- Then $I = C \int_a^b f(x)p(x)dx = C E_{p(x)}[f(x)]$
+- So if we can sample from $p(x)$ the target integral is the expected value of $f(x)$ scaled by some constant.  
+- How do we approximate the expected value?  
+- $E_{p(x)}[f(x)] = \frac{1}{N}\sum_{i}^{N}f(x_i)$.
+
+<!-- https://www.futureverse.org/ -->
+
+
+## Monte Carlo Integration Steps
+1.  Identify $f(x)$.
+2.  Identify $g(x)$ and determine $p(x)$ and $C$
+3.  Draw $N$ independent samples from $p(x)$.
+4.  Evaluate $I = C E[f(x)] \approx \frac{C}{N}\sum_{i}^{N}f(x_i)$
+
+## Example
+$$
+\int_0^2 x^2 dx
+$$
+How do we do this?  
+$$
+\frac{2^3}{3} - \frac{0^3}{3} = \frac{8}{3}
+$$
+
+## Example
+$$
+I = \int_0^2 x^2 dx
+$$
+How do we do this?
+
+1. $f(x) = x^2$
+2. $g(x) = 1$
+3. $C = \int_0^2 (1) dx = 2$
+4. $I = C E_{p(x)}[f(x)] \approx \frac{C}{N}\sum_{i}^{N}f(x_i)$
+
+## Example 
+```{r}
+n <- 10000
+x <- runif(n,0,2)
+C <- 2
+C*mean(x^2)
+#Exact answer
+8/3
+```
+
+## More complex example
+
+$$
+f(x) = log(x+1)e^{-x}
+$$
+$$
+\int_0^3 f(x) dx
+$$
+```{r}
+#| echo: false
+x <- seq(0,3,0.01)
+plot(x,log(x+1)*exp(-x),type="l")
+```
+  
+## More complex example  
+$$
+\int_0^3 log(x+1)e^{-x} dx
+$$
+
+ - $f(x) = log(x+1)$
+ - $g(x) = e^{-x}$
+ - $C = \int_0^3 e^{-x} dx = -\exp(-3) - (-\exp(-0)) = pexp(3)$ (Why???)
+ - $I = C E_{p(x)}[f(x)] \approx \frac{C}{N}\sum_{i}^{N}f(x_i)$
+
+
+## More complex example
+```{r}
+n <- 10000
+x <- rexp(n,1)
+x <- x[x<=3]
+C <- pexp(3)
+C*mean(log(x+1))
+#r answer
+f <- function(x){log(x+1)*exp(-x)}
+integrate(f, 0, 3)
+```
+
+## Same example, different choices
+$$
+\int_0^3 log(x+1)e^{-x} dx
+$$
+
+ - $f(x) = log(x+1)e^{-x}$
+ - $g(x) = 1$
+ - $C = \int_0^3 1 dx = 3$
+ - $I = C E_{p(x)}[f(x)] \approx \frac{C}{N}\sum_{i}^{N}f(x_i)$
+ 
+## Same example, different choices
+```{r}
+n <- 10000
+x <- runif(n,0,3)
+C <- 3
+C*mean(log(x+1)*exp(-x))
+#r answer
+f <- function(x){log(x+1)*exp(-x)}
+integrate(f, 0, 3)
+```
  
