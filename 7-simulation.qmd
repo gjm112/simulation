@@ -25,7 +25,7 @@ Sys.sleep(sleep)
 BRRR::skrrrahh(sound)
 }
 
-for (i in 1:5){
+for (i in 1:5 ){
 f(i)
 }
 ```
@@ -50,7 +50,17 @@ estimate (using a confidence interval).
 ## Small Example Simulation Study
 Mosteller, #25: If a chord is selected at random on a fixed circle, what is the probability that the its length exceeds the radius of a circle?  
 ```{r}
-#Write code here
+chordlength <- function(){
+theta <- runif(2, 0,2*pi)
+r <- 1
+x <- r*cos(theta)
+y <- r*sin(theta)
+return(sqrt((x[2]-x[1])^2 + (y[2]-y[1])^2))
+}
+chordlength()
+
+mosteller <- replicate(100000,chordlength())
+mean(mosteller > 1) 
 ```
 
 

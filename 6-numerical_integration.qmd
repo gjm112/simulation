@@ -415,7 +415,7 @@ integrate(f, 0, 3)
 # Why does this work?  
 You tell me.  
 
-## Multivariate example 2
+## Multivariate example 1
 How would I do this?  
 $$
 \int_0^1 \int_0^1 x^2 + y^2  dx dy 
@@ -424,6 +424,13 @@ $$
 ```{r}
 #Write code here
 #Answer is 2/3
+
+nsim <- 10000
+x <- runif(nsim)
+y <- runif(nsim)
+r <- x^2 + y^2
+C <- 1
+C*mean(r)
 ```
 
 ## Multivariate example 2
