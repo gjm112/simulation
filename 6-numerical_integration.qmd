@@ -112,12 +112,40 @@ for (i in 1:n){
  
 ## Trapezoidal Rule
 Write function here. 
+```{r}
+f <- function(x){x^2}
+a <- 0
+b <- 1
+n <- 10
+#arguments. 
+trapezoid <- function(f,a,b,n){
+  if (a > b){return("Nice try! Try again! b must be greater than a")}
+  h <- (b-a)/n
+  x <- seq(a,b,h)
+  out <- (2*sum(f(x)) - f(a) - f(b))*(h/2)
+  #out <- (f(a) + f(b) + sum(2*f(x[-c(1,n+1)]))) / h #These both work
+  return(out)
+}
+
+trapezoid(f, 0, 1, 10000)
+
+```
+
 
 ## Trapezoidal Rule
 Now use that function to compute the following: 
 
   - $P(0 < X < 2)$ where $X \sim t_1$
   - $f(x) = \frac{1}{\pi\left(1+x^2\right)}$
+  
+## Trapezoidal Rule
+```{r}
+f <- function(x){
+  1/(pi*(1+x^2))
+}
+
+trapezoid(f, 0, 2, 200)
+```
   
 ## Trapezoidal Rule
 ```{r}
@@ -204,7 +232,7 @@ uy <- runif(nsim,0,11)
 (b-a)*11
 
 #Fraction below the line
-mean(f(ux) < uy)
+mean(f(ux) > uy)
 
 #Integral Approx
 (b-a)*11*mean(f(ux) > uy)
@@ -277,7 +305,7 @@ $$
 ## Monte Carlo Integration
  - Think about an integral of this form: $\int_a^b f(x)g(x)dx$
  - We see these quite often in probability and statistics.  
- - For example $E[X] = \int_{p(x)} f(x)p(x)dx$.
+ - For example $E[f(X)] = \int_{p(x)} f(x)p(x)dx$.
  - As long as $g(x) \ge 0$, $x\in  (a,b)$ and $\int_a^b g(x) dx = C < \infty$
  
 ## Monte Carlo Integration
@@ -384,3 +412,27 @@ f <- function(x){log(x+1)*exp(-x)}
 integrate(f, 0, 3)
 ```
  
+# Why does this work?  
+You tell me.  
+
+## Multivariate example 2
+How would I do this?  
+$$
+\int_0^1 \int_0^1 x^2 + y^2  dx dy 
+$$
+
+```{r}
+#Write code here
+#Answer is 2/3
+```
+
+## Multivariate example 2
+How would I do this?  
+$$
+\int_0^1 \int_0^y x^2 + y^2  dx dy 
+$$
+```{r}
+#Write code here
+
+
+```
