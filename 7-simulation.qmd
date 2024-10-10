@@ -120,6 +120,27 @@ $A$ = 103, and $B$ = 17 with $X_0$ = 2.
 Write code here.  
 Plot a histogram, time series plot, and scatter plot.  
 
+```{r}
+nsim <- 100000
+x <- rep(NA, nsim)
+x[1] <- 2
+A <- 172541
+B <- 32657483
+m <- 174
+
+for (i in 2:nsim){
+x[i] <- (A*x[i-1] + B) %% m
+}
+
+hist(x/(m-1))
+
+
+x <- runif(1000)
+acf(x)
+
+
+```
+
 ## 
  - $X_0$ is called the seed. If we know this and $A$, $B$, and $m$ we can
 reproduce the whole sequence of random numbers.
@@ -152,7 +173,7 @@ runif(2)
  - Once we are able to sample from a uniform random variable
 we can sample from any random variable that we want.
  - How can we do this?
- - Let's take a look at a pmf for a binomial random variable.
+ - Let's take a look at a cdf for a binomial random variable.
 
 ##
 ```{r}
@@ -230,6 +251,7 @@ $$
 $$
 x = -\theta log(1-y) = F_{X}^{-1}(y)
 $$
+
 ## 
 ```{r}
 u <- runif(5)
@@ -407,3 +429,177 @@ To simulate from the density $f_X$, we assume that we have envelope density $h$ 
 - The area under $kh$ is $k$ and the area under $f_X$ is 1.  So the probability of accepting a candidate is $\frac{1}{k}$
 - The number of times $N$ we have to generate a candidate point has distribution 1 + geom($\frac{1}{k}$).  
 - This has expected value $k$, thuse the closer $h$ is to $f_X$, the smaller $k$ needs to be and the more efficient the algorithm is.  
+
+
+## Gamma
+-  Let's say we want to simulate from a Gamma($\alpha$, $\beta$).  
+- $f(x) = \frac{\beta^{\alpha}}{\Gamma(\alpha)} x^{\alpha-1} e^{-\beta x}$ for $x > 0$.
+-  There is no closed form expression for the CDF of a gamma distribution.  
+
+## Gamma 
+\item We will use an exponential envelope.  So $h(x) = \lambda e^{-\lambda x}$ for $x>0$.  
+\item $h$ is easy to sample from using the inversion method with $\frac{-log(U)}{\lambda}$ where $U$ is Uniform(0,1)
+\item Now we need to find $k^{\star}$
+
+## Gamma 
+$$
+k^{\star} = sup_{x>0} \frac{f(x)}{h(x)} = sup_{x>0} \frac{\beta^\alpha x^{\alpha-1}e^{(\lambda-\beta)x}}{\lambda \Gamma(\alpha)}
+$$
+If $\alpha<1$ or $\beta < \lambda$, $k^{\star}$ will be infinite.  \\
+$$
+x = \frac{\alpha-1}{\beta-\lambda}
+$$
+
+$$
+k^{\star} = \frac{\beta^\alpha (\alpha-1)^{\alpha-1}e^{-(\alpha-1)}}{\lambda(\beta-\lambda)^{\alpha-1}\Gamma(\alpha)}
+$$
+...math...
+$$
+k^{\star} = \frac{\alpha^{\alpha}e^{-(\alpha-1)}}{\Gamma(\alpha)}
+$$
+
+## Gamma
+```{r}
+lambda <-1.5
+m <- 2
+kstar <- m^m*exp(-(m-1))/gamma(m)
+```
+
+### Gamme
+```{r}
+plot(seq(0,20,0.01),kstar*dexp(seq(0,20,0.01),rate = 0.1),type="l",col="red",ylim=c(0,0.25))
+points(seq(0,20,0.01),dgamma(seq(0,20,0.01),rate = 0.1, shape = lambda),type="l",col="black")
+```
+
+## Gamma
+```{r}
+gamma.sim <- function(alpha, beta) {
+# sim a gamma(lambda, m) rv using rejection with an exp envelope
+# assumes m > 1 and lambda > 0
+f <- function(x) beta^alpha*x^(alpha-1)*exp(-beta*x)/gamma(alpha)
+h <- function(x) beta/alpha*exp(-beta/alpha*x)
+k <- alpha^alpha*exp(1-alpha)/gamma(alpha)
+while (TRUE) {
+X <- -log(runif(1))*alpha/beta
+Y <- runif(1, 0, k*h(X))
+if (Y < f(X)) return(X)
+}
+}
+```
+
+## Gamma 
+```{r}
+#| echo: false
+set.seed(1999)
+n <- 10000
+g <- rep(0, n)
+for (i in 1:n) g[i] <- gamma.sim(1, 2)
+hist(g, breaks=20, freq=F, xlab="x", ylab="pdf f(x)",
+main="theoretical and simulated gamma(1, 2) density")
+x <- seq(0, max(g), .1)
+lines(x, dgamma(x, 1, 2))
+```
+
+## Simulating Normals
+- Recall that if $Z\sim N(0,1)$ then $\mu + \sigma Z \sim N(\mu,\sigma^2)$. 
+- So if we can sample from a $N(0,1)$, we can sample from any normal.
+- One really simple approach is to use the CLT.
+- Sample $n$ draws from $U(0,1)$ and the sum is approximately normal for large $n$.
+
+## Simulating Normals
+```{r}
+set.seed(63793)
+norm <- rep(NA, 100)
+#What are 18 and 3 here?  
+rnorm2 <- function(){
+  out <- (sum(runif(36)) - 18) / sqrt(3)
+  return(out)
+}
+
+norm <- replicate(10000,rnorm2())
+```
+
+## Simulating Normals
+```{r}
+qqnorm(norm)
+```
+
+## Simulating Normals
+```{r}
+hist(norm,freq=FALSE)
+points(seq(-3,3,0.01),dnorm(seq(-3,3,0.01)),type="l",col="red")
+```
+
+## Simulating Normals
+- But we can do way better than this.  
+- We are going to use the rejection method with an exponential envelope.  
+- What's one obvious problem with using an exponential envelope to generate normal r.v.'s? (Think about support.)
+
+## Simulating Normals 
+- If $Z\sim N(0,1)$ then $X = |Z|$ has a so called ``half-normal" density.  
+- And if you define a r.v. $S$ to be $\pm 1$ with probability half each, then $Z = SX \sim N(0,1)$
+
+
+## Simulating Normals 
+Half Normal Density
+$$
+f_X(x) = \sqrt{\frac{2}{\pi}} e^{-\frac{1}{2}x^2} I(x\ge 0)
+$$
+
+## Simulating Normals
+- Consider using an $Exp(1)$ as the envelope function.  
+- Envelope density is $h(x) = e^{(-x)}$ for $x > 0$.
+
+$$
+k^{\star} = sup_x \frac{f_{X}(x)}{h(x)} = sup_x \sqrt{\frac{2}{\pi}} e^{x - \frac{x^2}{2}} = \sqrt{\frac{2e}{\pi}}
+$$
+
+
+## Simulating Normals
+Standard Normal Simulation using Rejection
+
+1 . Generate $X \sim Exp(1)$ and $Y \sim U(0, e^{-X}\sqrt{\frac{2e}{\pi}})$
+
+2. If $Y < \phi(X)$ then generate $S$ and return $SX$, otherwise go back to step 1.  (Note: $\phi$ is the pdf of a standard normal)
+
+## Simulating Normals
+- Slightly better way to generate Standard Normal Simulation using Rejection
+- Notice that $X$ is generated with the inversion method by $-log(U)$.  This means that $U = e^{(-X)}$ and thus $Y \sim U(0, U \sqrt{\frac{2e}{\pi}})$.
+- Second, if $Y < \phi(X)$, then $Y < \frac{\phi(X)}{2}$ with probability 0.5.
+
+
+## An even better way!
+Slightly better way to generate Standard Normal Simulation using Rejection
+
+1 . Generate $U \sim U(0,1)$ and $Y \sim U(0, U\sqrt{\frac{2e}{\pi}})$
+
+2. Put $X = -log(U)$
+3. Then
+
+  3a. If $Y < \frac{\phi(X)}{2}$ then return $Z = -X$
+
+  3b. If $\frac{\phi(X)}{2} < Y < \phi(X)$ then return $Z = X$
+
+4.  Else return to step 1
+
+## Code
+Write code to implement this algorithm here
+
+
+## 
+```{r}
+#| eval: false
+sim <- replicate(10000, normZee())
+hist(sim)
+
+#ggplot histogram and wet noodle (i.e. density estimator)
+ggsim <- data.frame(sim = sim)
+ggplot(data = ggsim, aes(x = sim)) + geom_histogram(aes(y = ..density..), colour = "orange1") + geom_density(colour = "red4")
+
+ggplot(data = ggsim, aes(x = sim)) + geom_freqpoly() + geom_density(colour = "red4")
+
+
+
+qqnorm(sim)
+qqline(sim, col = "red")
+```
