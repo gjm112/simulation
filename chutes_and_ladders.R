@@ -77,6 +77,7 @@ plot(sims[[5665]], type = "l")
 #Creating the image with path.  
 library(png )
 test <- readPNG("/Users/gregorymatthews/chutes.png")
+test <- readPNG("/Users/gregorymatthews/Dropbox/simulationgit/chutes.png")
 
 plot(0,0,xlim = c(0,100), ylim = c(0,100), asp = 1, col = "white", frame.plot = FALSE, xaxt = 'n', yaxt = 'n', xlab = "", ylab = "")
 rasterImage(test,0,0,100,100)
