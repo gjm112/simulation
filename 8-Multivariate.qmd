@@ -1,0 +1,283 @@
+---
+title: "Multivariate"
+author: "Gregory J. Matthews"
+format: 
+  revealjs:
+    chalkboard: true
+    slide-number: c/t
+    code-line-numbers: false
+    linestretch: 1.25
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+editor: visual
+execute: 
+  echo: true
+---
+
+
+## Multivariate Simulation
+ - Copula Models
+ - MCMC
+    - Metropolis Hastings
+    - Gibbs Sampling
+ 
+## Basic Idea
+   - Want to be able to sample from a target distribution.
+   - The distribution now is multivariate.  
+   - The variables will now have a correlation structure
+   
+## Multivariate normal distribution 
+  - ${\bf x} = (x_1,x_2)$ 
+  - pdf: $f({\bf x}) = \frac{1}{(2\pi|{\bf \Sigma}|)^{\frac{k}{2}}}e^{(-\frac{1}{2}({\bf x}-{\bf \mu})'{\bf \Sigma}^{-1}({\bf x}-{\bf\mu}))}$
+   - Mean vector: $\mu = (\mu_1, \mu_2)$.
+   - Correlation matrix: $$\Sigma = 
+   \begin{bmatrix}
+  \sigma^2_1 & \sigma_{12} \\
+  \sigma_{12} & \sigma^2_2 \\
+  \end{bmatrix}$$.
+   
+
+
+## Multivariate normal distribution: Bivariate example
+```{r}
+library(tidyverse)
+library(mvtnorm)
+dat <- expand.grid(seq(-3,3,.1),seq(-3,3,0.1))
+dat <- cbind(dat, dmvnorm(dat))
+names(dat) <- c("x","y","z")
+ggplot(aes(x = x, y = y, z = z), data = dat) + geom_contour_filled() + coord_fixed()
+```
+
+## Multivariate normal distribution: Bivariate example
+```{r}
+library(mvtnorm)
+dat <- expand.grid(seq(-3,3,.1),seq(-3,3,0.1))
+dat <- cbind(dat, dmvnorm(dat, mean = c(0,0), sigma = matrix(c(1,.5,.5,1), ncol = 2)))
+names(dat) <- c("x","y","z")
+ggplot(aes(x = x, y = y, z = z), data = dat) + geom_contour_filled() + coord_fixed()
+```
+
+## Multivariate normal distribution: Bivariate example
+```{r}
+library(mvtnorm)
+dat <- expand.grid(seq(-3,3,.1),seq(-3,3,0.1))
+dat <- cbind(dat, dmvnorm(dat, mean = c(0,0), sigma = matrix(c(1,-.5,-.5,1), ncol = 2)))
+names(dat) <- c("x","y","z")
+ggplot(aes(x = x, y = y, z = z), data = dat) + geom_contour_filled() + coord_fixed()
+```
+
+## Properties of MVN
+  - What is the conditional distribution of $X_1 | X_2$?
+  - $X_1 | X_2 = x_2 \sim N(\mu^\star, \Sigma^\star)$
+    - $\mu^\star = \mu_1 + \Sigma_{12}\Sigma_{22}^{-1}(x_2 - \mu_2)$
+    - $\Sigma^\star = \Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21}$
+  - Bivariate case: 
+    - $\mu^\star = \mu_1 + \frac{\sigma_{12}}{\sigma^2_{2}}(x_2 - \mu_2)$
+    - $\sigma^\star = \sigma^2_{1} - \frac{\sigma_{12}}{\sigma^2_{2}}$
+
+## Randomly sampling from bivariate normal
+  - Recall, $p(A \cap B) = p(A|B)p(B)$.  
+  - So if we want to sample from $f(x_1,x_2)$ we can instead sample from $f(x_2)$ first and then sample from $f(x_1|x_2)$. 
+  
+## Randomly sampling from bivariate normal
+```{r}
+#target distribution
+mu <- c(3,5)
+Sigma <- matrix(c(10,6,6,10), ncol = 2)
+Sigma
+
+nsim <- 1000
+#Marginal distribution of x2 is N(5,10)
+x2 <- rnorm(nsim, mu[2], Sigma[2,2])
+
+#Conditional distribution of x1|x2 is N(mu_star, sigma_star)
+mu_star <- mu[1] + Sigma[1,2]/Sigma[2,2]*(x2 - mu[2])
+sigma_star <- Sigma[1,1] - Sigma[1,2]/Sigma[2,2]
+x1 <- rnorm(nsim, mu_star, sigma_star) 
+dat <- data.frame(x1,x2)
+```
+## Randomly sampling from bivariate normal
+```{r}
+ggplot(aes(x = x1, y= x2),data = dat) + geom_point() + theme_bw() + coord_fixed()
+```   
+
+## Copula
+  - Consider vector $(X_1, X_2, \cdots, X_d)$.
+  - Each $X_i$ has a continuous cdf $F_{X_i}(x)$. 
+  - $(U_1, U_2, \cdots, U_d) = (F_{X_1}(X_1), F_{X_2}(X_2), \cdots, F_{X_d}(X_d)$
+  - The marginals a uniform.  
+  - We say that $(U_1, U_2, \cdots, U_d)$ is the copula of $(X_1, X_2, \cdots, X_d)$. 
+  - The copula contains the information about the correlation structure, and infromation about the marginal distributions are contained in $F_{X_i}(x)$.
+  
+## Inverting the Copula
+  - If we reverse these steps, this gives us a way of generating pseudo-random numbers from multivariate distributions.  
+  - $(X_1, X_2, \cdots, X_d)$ = $(F^{-1}_{X_1}(U_1),F^{-1}_{X_1}(U_2),\cdots, F^{-1}_{U_d}(x))$
+  - So it we can generate $(U_1, U_2, \cdots, U_d)$, then we can generate $(X_1, X_2, \cdots, X_d)$. 
+  - So how do we generate $(U_1, U_2, \cdots, U_d)$?  
+
+## The Gaussian Copula 
+  - $C(u) = \Phi_R(\Phi^{-1}(u_1),\Phi^{-1}(u_2),\cdots,\Phi^{-1}(u_d))$
+    - $R$ is a correlation structure.  
+    - $\Phi$ is the normal cdf. 
+
+## Copula Example
+  - Let's try to sample from a bivariate gamma distribution with large positive correlation.  
+```{r}
+library(mvtnorm)
+mu <- c(0,0)
+Sigma <- matrix(c(1,0.5, 0.5, 1), ncol = 2)
+nsim <- 10000
+x <- rmvnorm(nsim, mu, Sigma)
+#Transform to Uniform
+x[,1] <- pnorm(x[,1])
+x[,2] <- pnorm(x[,2])
+```
+
+## Copula Example
+```{r}
+library(ggExtra)
+p <- ggplot(aes(x = V1, y = V2),data = as.data.frame(x)) + geom_point() + theme_bw() + coord_fixed() + theme(legend.position="none")
+
+# use ggMarginal function to create marginal histogram
+ggMarginal(p, type="histogram")
+```
+
+
+
+## Copula Example
+```{r}
+#Now we take the copula to the marginals that we want.  
+x[,1] <- qgamma(x[,1],3,5)
+x[,2] <- qgamma(x[,2],1,6)
+cor(x)
+
+library(ggExtra)
+p <- ggplot(aes(x = V1, y = V2),data = as.data.frame(x)) + geom_point() + theme_bw() + coord_fixed() + theme(legend.position="none")
+
+# use ggMarginal function to create marginal histogram
+ggMarginal(p, type="histogram")
+```
+
+
+## Copula Example: Correlated Binomial
+```{r}
+library(mvtnorm)
+mu <- c(0,0)
+Sigma <- matrix(c(1,0.5, 0.5, 1), ncol = 2)
+nsim <- 10000
+x <- rmvnorm(nsim, mu, Sigma)
+#Transform to Uniform
+x[,1] <- pnorm(x[,1])
+x[,2] <- pnorm(x[,2])
+
+x[,1] <- qbinom(x[,1],1,0.6)
+x[,2] <- qbinom(x[,2],1,0.6)
+#Doesn't maintain the exact corelation because you are moving to discrete.  But still correlated.  
+cor(x)
+```
+
+## R copula package
+```{r}
+library(copula)
+nsims <- 10000
+x <- rCopula(nsims, copula = normalCopula(0.5, dim = 2, dispstr = "un"))
+library(ggExtra)
+p <- ggplot(aes(x = V1, y = V2),data = as.data.frame(x)) + geom_point() + theme_bw() + coord_fixed() + theme(legend.position="none")
+
+# use ggMarginal function to create marginal histogram
+ggMarginal(p, type="histogram")
+cor(x)
+  
+```
+
+
+## R copula package: Kendall 
+```{r}
+library(copula)
+nsims <- 10000
+#First calibrate with iTau to get a target Kendall's tau distribution. 
+theta <- iTau(normalCopula(), tau = c(.5))
+x <- rCopula(nsims, copula = normalCopula(theta, dim = 2, dispstr = "un"))
+plot(x)
+cor(x, method = "kendall")
+```
+
+## R copula package
+```{r}
+library(copula)
+nsims <- 1000
+x <- rCopula(nsims, copula = normalCopula(c(0.5,0.5,0.5), dim = 3, dispstr = "un"))
+pairs(x)
+cor(x)
+```
+## R copula package
+```{r}
+library(copula)
+nsims <- 1000
+x <- rCopula(nsims, copula = normalCopula(c(0.5,0.5,0.5,0.5,0.5,0.5), dim = 4, dispstr = "un"))
+pairs(x)
+cor(x)
+```
+
+## Copula Application
+[Olympic Sport Climbing](https://jds-online.org/journal/JDS/article/1273/info)
+
+
+
+## MCMC
+  - What is MCMC? 
+    - Markov Chain Monte Carlo?
+  - What is Monte Carlo? 
+    - Simulation based study.
+  - What is a Markov Chain?
+    - A chain that only depends on the most recent state. 
+    
+## Monte Carlo    
+  - Monte Carlo techniques solve problems by simulation
+  - Simple example: 
+    - Say I have a fair coin and I want to know the probability that when the coin is flipped it will land on heads.  
+    - Since there are two events in the sample space $\{H,T\}$, and I am interested in one of those events $\{H\}$, the probability will be $\frac{1}{2}$.
+    - However, I could also solve this problem via Monte Carlo simulation.  
+    - How?  Get out a coin, flip it a large number of times, and record the results.  
+    - That's it!
+    
+## What is a Markov Chain? 
+
+  - A Markov chain is a sequence of random variable where the current random variable is only effected by the most recent random variable and is independent of the all others.
+ - Formally, 
+ $$
+ Pr(X_{n+1}=x|X_{n}=x_{n},X_{n-1}=x_{n-1},....,X_{0}=x_{0})
+ $$
+ $$
+ =Pr(X_{n}=x|X_{n-1}=x_{n-1})
+ $$
+ 
+  - Basically, if I know the state I am in at time $n-1$, the probability of moving to state $x$ at time $n$ is the same whether or not I have information about the state I was in at times $0$ through $n-1$
+  
+## What is a Markov Chain? 
+  - We need two things for a Markov Chain: 
+    1.  Initial probability matrix: The probability of starting in any given state
+    2.  Transition matrix: For any given state, this matrix gives the probability of moving to the next state.  
+
+## An example 
+  - The Drunkards walk.  
+```{r}
+set.seed(1234)
+x<-c()
+x[1]<-0
+for (i in 2:25){
+x[i]<-x[i-1]+sign(rnorm(1,0,1))
+}
+x
+```
+  - Question: What would the transition matrix look like for this Markov chain?
+
+## Metropolis-Hastings
+
+## Gibb's Sampling 
+
+## Bayesian 
+
+## Using Gibb's in Bayesian 
+
