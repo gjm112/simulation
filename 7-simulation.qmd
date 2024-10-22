@@ -450,6 +450,7 @@ $$
 x = \frac{\alpha-1}{\beta-\lambda}
 $$
 
+## Gamma
 $$
 k^{\star} = \frac{\beta^\alpha (\alpha-1)^{\alpha-1}e^{-(\alpha-1)}}{\lambda(\beta-\lambda)^{\alpha-1}\Gamma(\alpha)}
 $$
@@ -461,8 +462,8 @@ $$
 ## Gamma
 ```{r}
 lambda <-1.5
-m <- 2
-kstar <- m^m*exp(-(m-1))/gamma(m)
+alpha <- 2
+kstar <- alpha^alpha*exp(-(alpha-1))/gamma(alpha)
 ```
 
 ### Gamme
@@ -583,13 +584,32 @@ Slightly better way to generate Standard Normal Simulation using Rejection
 4.  Else return to step 1
 
 ## Code
-Write code to implement this algorithm here
+```{r}
+normsim <- function() {
+  z <- NULL 
+  while (is.null(z)){
+  u <- runif(1)
+  y <- runif(1, 0, u * sqrt(2 * exp(1) / pi))
+  x <- -log(u)
+  if (y < dnorm(x) / 2) {
+    z <- -x
+  } else if(y > dnorm(x) / 2 & y < dnorm(x)) {
+    z <- x     
+  }
+  }
+return(z)
+  }
+
+vec <- replicate(10000,normsim())
+
+
+```
 
 
 ## 
 ```{r}
 #| eval: false
-sim <- replicate(10000, normZee())
+sim <- replicate(10000, normsim())
 hist(sim)
 
 #ggplot histogram and wet noodle (i.e. density estimator)
