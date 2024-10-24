@@ -1,0 +1,52 @@
+State,Abbreviation,Total,Prob
+Alabama,AL,9,0
+Alaska,AK,3,0
+Arizona,AZ,11,0.5
+Arkansas,AR,6,0
+California,CA,54,1
+Colorado,CO,10,1
+Connecticut,CT,7,1
+District of Columbia,DC,3,1
+Delaware,DE,3,1
+Florida,FL,30,0
+Georgia,GA,16,0.5
+Hawaii,HI,4,1
+Idaho,ID,4,0
+Illinois,IL,19,1
+Indiana,IN,11,0
+Iowa,IA,6,0
+Kansas,KS,6,0
+Kentucky,KY,8,0
+Louisiana,LA,8,0
+Maine,ME,4,1
+Maryland,MD,10,1
+Massachusetts,MA,11,1
+Michigan,MI,15,0.5
+Minnesota,MN,10,1
+Mississippi,MS,6,0
+Missouri,MO,10,0
+Montana,MT,4,0
+Nebraska,NE,5,0
+Nevada,NV,6,0.5
+New Hampshire,NH,4,1
+New Jersey,NJ,14,1
+New Mexico,NM,5,1
+New York,NY,28,1
+North Carolina,NC,16,0.5
+North Dakota,ND,3,0
+Ohio,OH,17,0
+Oklahoma,OK,7,0
+Oregon,OR,8,1
+Pennsylvania,PA,19,0.5
+Rhode Island,RI,4,1
+South Carolina,SC,9,0
+South Dakota,SD,3,0
+Tennessee,TN,11,0
+Texas,TX,40,0
+Utah,UT,6,0
+Vermont,VT,3,1
+Virginia,VA,13,1
+Washington,WA,12,1
+West Virginia,WV,4,0
+Wisconsin,WI,10,0.5
+Wyoming,WY,3,0
