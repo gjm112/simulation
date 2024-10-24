@@ -232,7 +232,52 @@ cor(x)
 ## Simulation Study
 ```{r}
 ec <- read.csv("/Users/gregorymatthews/Dropbox/simulationgit/2024_Electoral_College.csv")
-ec 
+
+
+nsim <- 10000
+ecsim <- c()
+for (i in 1:nsim){
+#Generate random bernoulli's
+ecsim[i] <- sum(rbinom(51,1,ec$Prob)*ec$Total)
+}
+
+mean(ecsim)
+median(ecsim)
+barplot(ecsim)
+
+sum(ecsim > 270)/nsim
+sum(ecsim < 270 )/nsim
+sum(ecsim == 269)/nsim
+
+#Now add correlation 
+library(tidyverse)
+swing <- ec %>% filter(Prob == 0.5)
+notswing <- ec %>% filter(Prob != 0.5)
+
+
+theta <- iTau(normalCopula(), tau = rep(.7,21))
+x <- rCopula(nsim, copula = normalCopula(theta, dim = 7, dispstr = "un"))
+cor(x, method = "kendall")
+
+
+ecsimwcor <- apply(x,1,function(z){sum(qbinom(z,1,swing$Prob)*swing$Total)}) + sum(notswing$Prob*notswing$Total)
+
+
+sum(ecsimwcor > 270)/nsim
+sum(ecsimwcor < 270 )/nsim
+sum(ecsimwcor == 269)/nsim
+
+
+
+
+
+
+
+
+
+
+
+
 ```
  - Write a simulation to simulate the electoral college in 2 ways: 
   1. All states are independent.  
