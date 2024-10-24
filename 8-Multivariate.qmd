@@ -99,7 +99,11 @@ dat <- data.frame(x1,x2)
 ```
 ## Randomly sampling from bivariate normal
 ```{r}
-ggplot(aes(x = x1, y= x2),data = dat) + geom_point() + theme_bw() + coord_fixed()
+library(ggExtra)
+p <- ggplot(aes(x = x1, y= x2),data = dat) + geom_point() + theme_bw() + coord_fixed()
+
+# use ggMarginal function to create marginal histogram
+ggMarginal(p, type="histogram")
 ```   
 
 ## Copula
@@ -180,7 +184,7 @@ cor(x)
 ## R copula package
 ```{r}
 library(copula)
-nsims <- 10000
+nsims <- 1000
 x <- rCopula(nsims, copula = normalCopula(0.5, dim = 2, dispstr = "un"))
 library(ggExtra)
 p <- ggplot(aes(x = V1, y = V2),data = as.data.frame(x)) + geom_point() + theme_bw() + coord_fixed() + theme(legend.position="none")
@@ -201,6 +205,7 @@ theta <- iTau(normalCopula(), tau = c(.5))
 x <- rCopula(nsims, copula = normalCopula(theta, dim = 2, dispstr = "un"))
 plot(x)
 cor(x, method = "kendall")
+cor(qbinom(x,1,0.5), method = "kendall")
 ```
 
 ## R copula package
@@ -220,10 +225,18 @@ pairs(x)
 cor(x)
 ```
 
+
 ## Copula Application
 [Olympic Sport Climbing](https://jds-online.org/journal/JDS/article/1273/info)
 
-
+## Simulation Study
+```{r}
+ec <- read.csv("/Users/gregorymatthews/Dropbox/simulationgit/2024_Electoral_College.csv")
+ec 
+```
+ - Write a simulation to simulate the electoral college in 2 ways: 
+  1. All states are independent.  
+  2. There is correlation between the 7 swing states.  
 
 ## MCMC
   - What is MCMC? 
@@ -241,6 +254,7 @@ cor(x)
     - However, I could also solve this problem via Monte Carlo simulation.  
     - How?  Get out a coin, flip it a large number of times, and record the results.  
     - That's it!
+    - FERMIAC
     
 ## What is a Markov Chain? 
 
@@ -274,6 +288,79 @@ x
   - Question: What would the transition matrix look like for this Markov chain?
 
 ## Metropolis-Hastings
+  - We need:
+    - (1) target distribution $\pi$ and (2) transition kernel $Q$ (generates proposals).
+  - Initialize $X_1 = x_1$
+  - For t = $1, 2, \cdots$, 
+    - Sample $x'$ from $Q(x'|x_t)$.   
+    - Compute $A = min\left(1,\frac{\pi(x')Q(x_t|x')}{\pi(x_t)Q(x'|x_t)}\right)$ (A is the "acceptance probability".)
+    - Accept $x'$ with probability A and set $x_{t+1} = x'$.  Otherwise $x_{t+1} = x_t$.
+
+## Metropolis-Hastings
+ - Let's implement this for a bivriate normal distribution.
+ - Let $\mu = c(10,20)$.
+ - Let $\Sigma = 
+   \begin{bmatrix}
+  15 & 5 \\
+  5 & 10 \\
+  \end{bmatrix}$.
+    
+## Metropolis-Hastings
+```{r}
+#Let's implement this. 
+library(mvtnorm)
+mu <- c(10,20)
+Sigma <- matrix(c(15,5,5,10), ncol = 2)
+#Initialize x
+nsim <- 10000
+x <- matrix(c(0,0), ncol = 2, nrow = nsim)
+for (t in 1:(nsim-1)){
+#Propose an x'
+xprime <- c(NA, NA)
+xprime[1] <- rnorm(1,x[t,1],1)
+xprime[2] <- rnorm(1,x[t,2],1)
+
+#Compute A
+ratio1 <- dmvnorm(xprime,mu,Sigma)/dmvnorm(x[t,],mu,Sigma)
+ratio2 <- dmvnorm(x[t,],mean = xprime)/dmvnorm(xprime, mean = x[t,])
+A <- min(1,ratio1*ratio2)
+
+if (runif(1) < A){x[t+1,] <- xprime} else {x[t+1,] <- x[t,]}
+}
+
+```
+
+## Metrpolis-Hastings
+```{r}
+library(tidyverse)
+dat <- expand.grid(seq(-5,20,.5),seq(0,30,0.5))
+dat <- cbind(dat, dmvnorm(dat, mu, Sigma))
+names(dat) <- c("x","y","z")
+ggplot(aes(x = V1, y = V2), data = as.data.frame(x)) + geom_path() + geom_contour(aes(x = x, y = y, z = z), data = dat) + coord_fixed()
+```
+## Metrpolis-Hastings
+```{r}
+#Now drop the first say 1000.  
+library(tidyverse)
+dat <- expand.grid(seq(-5,20,.5),seq(0,30,0.5))
+dat <- cbind(dat, dmvnorm(dat, mu, Sigma))
+names(dat) <- c("x","y","z")
+ggplot(aes(x = V1, y = V2), data = as.data.frame(x[1000:10000,])) + geom_point() + geom_contour(aes(x = x, y = y, z = z), data = dat) + coord_fixed()
+```
+
+##Metropolis-Hastings
+```{r}
+acf(x[,1])
+acf(x[,2])
+```
+
+
+## Pros and Cons
+ - Cons:
+    - Samples are autocorellated.  Effective sample sizes can be lower.  
+    - Need a "burn-in" period for algorithm to converge. 
+  - Pros:
+    - Does not suffer from the "curse of dimensionality" like acceptance-rejection algorithms that generate independent samples.  This is why this is often used in high dimensional Bayesian models.  
 
 ## Gibb's Sampling 
 
