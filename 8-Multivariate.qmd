@@ -334,7 +334,7 @@ x
 
 ## Metropolis-Hastings
   - We need:
-    - (1) target distribution $\pi$ and (2) transition kernel $Q$ (generates proposals).
+    - 1. target distribution $\pi$ and 2. transition kernel $Q$ (generates proposals).
   - Initialize $X_1 = x_1$
   - For t = $1, 2, \cdots$, 
     - Sample $x'$ from $Q(x'|x_t)$.   
@@ -342,7 +342,7 @@ x
     - Accept $x'$ with probability A and set $x_{t+1} = x'$.  Otherwise $x_{t+1} = x_t$.
 
 ## Metropolis-Hastings
- - Let's implement this for a bivriate normal distribution.
+ - Let's implement this for a bivariate normal distribution.
  - Let $\mu = c(10,20)$.
  - Let $\Sigma = 
    \begin{bmatrix}
@@ -358,7 +358,7 @@ mu <- c(10,20)
 Sigma <- matrix(c(15,5,5,10), ncol = 2)
 #Initialize x
 nsim <- 10000
-x <- matrix(c(0,0), ncol = 2, nrow = nsim)
+x <- matrix(c(-100,-100), ncol = 2, nrow = nsim)
 for (t in 1:(nsim-1)){
 #Propose an x'
 xprime <- c(NA, NA)
@@ -383,6 +383,10 @@ dat <- cbind(dat, dmvnorm(dat, mu, Sigma))
 names(dat) <- c("x","y","z")
 ggplot(aes(x = V1, y = V2), data = as.data.frame(x)) + geom_path() + geom_contour(aes(x = x, y = y, z = z), data = dat) + coord_fixed()
 ```
+## Burn-in and thinning
+  - Burn-in: We throw away the first $n$ draws to prevent us including draws from before convergence of the chain.
+  - Thinning: We take only every $t$-th iteration.  We want an independent sample, but consecutive draws are often highly correlated.  
+
 ## Metrpolis-Hastings
 ```{r}
 #Now drop the first say 1000.  
@@ -402,12 +406,66 @@ acf(x[,2])
 
 ## Pros and Cons
  - Cons:
-    - Samples are autocorellated.  Effective sample sizes can be lower.  
+    - Samples are autocorelated.  Effective sample sizes can be lower.  
     - Need a "burn-in" period for algorithm to converge. 
   - Pros:
     - Does not suffer from the "curse of dimensionality" like acceptance-rejection algorithms that generate independent samples.  This is why this is often used in high dimensional Bayesian models.  
 
 ## Gibb's Sampling 
+  - We will sample from a joint distribution by iteratively sampling from all of the conditional distributions.  
+  - Consider $P(X_1, X_2, X_3)$.  We want to sample from it.  
+  - We want to create a chain of values $X_{i,t}$
+  - Start by initializing values for $X_{1,0}, X_{2,0}, X_{3,0}$.
+  - Then sample iteratively from conditionals: 
+    - Draw $X_{1,1}$ from $P(X_{1} | X_{2,0}, X_{3,0})
+    - Draw $X_{2,1}$ from $P(X_{2} | X_{1,1}, X_{3,0})
+    - Draw $X_{3,1}$ from $P(X_{3} | X_{1,1}, X_{2,1})
+  - Repeat.  
+  
+## Bivariate Gibb's Example
+  - Let's implement this for a bivariate normal distribution.
+  - Let $\mu = c(10,20)$.
+  - Let $\Sigma = 
+   \begin{bmatrix}
+  15 & 5 \\
+  5 & 10 \\
+  \end{bmatrix}$.
+  
+## Bivariate Gibb's Example
+```{r}
+library(mvtnorm)
+mu <- c(10,20)
+Sigma <- matrix(c(15,5,5,10), ncol = 2)
+#Initialize x
+nsim <- 10000
+x <- matrix(c(-100,-100), ncol = 2, nrow = nsim)
+
+for (t in 1:(nsim-1)){
+#X1|X2
+mu12 <- mu[1] + Sigma[1,2]/Sigma[2,2]*(x[t,2] - mu[2])
+sigma12 <- Sigma[1,1] - Sigma[1,2]*Sigma[2,1]/Sigma[2,2]
+x[t+1,1] <- rnorm(1,mu12, sqrt(sigma12))
+
+#X2|X1
+mu21 <- mu[2] + Sigma[1,2]/Sigma[1,1]*(x[t+1,1] - mu[1])
+sigma21 <- Sigma[2,2] - Sigma[1,2]*Sigma[2,1]/Sigma[1,1]
+x[t+1,2] <- rnorm(1,mu21, sqrt(sigma21))
+}
+```
+
+## Bivariate Gibb's Example
+```{r}
+library(tidyverse)
+dat <- expand.grid(seq(-5,20,.5),seq(0,30,0.5))
+dat <- cbind(dat, dmvnorm(dat, mu, Sigma))
+names(dat) <- c("x","y","z")
+ggplot(aes(x = V1, y = V2), data = as.data.frame(x)) + geom_path() + geom_contour(aes(x = x, y = y, z = z), data = dat) + coord_fixed()
+```
+## Bivariate Gibb's Example
+```{r}
+acf(x[,1])
+acf(x[,2])
+```
 
 ## Bayesian 
 
