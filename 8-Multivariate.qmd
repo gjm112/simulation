@@ -358,7 +358,7 @@ mu <- c(10,20)
 Sigma <- matrix(c(15,5,5,10), ncol = 2)
 #Initialize x
 nsim <- 10000
-x <- matrix(c(-100,-100), ncol = 2, nrow = nsim)
+x <- matrix(c(0,0), ncol = 2, nrow = nsim)
 for (t in 1:(nsim-1)){
 #Propose an x'
 xprime <- c(NA, NA)
@@ -397,7 +397,8 @@ names(dat) <- c("x","y","z")
 ggplot(aes(x = V1, y = V2), data = as.data.frame(x[1000:10000,])) + geom_point() + geom_contour(aes(x = x, y = y, z = z), data = dat) + coord_fixed()
 ```
 
-##Metropolis-Hastings
+## Metropolis-Hastings
+
 ```{r}
 acf(x[,1])
 acf(x[,2])
@@ -467,7 +468,133 @@ acf(x[,1])
 acf(x[,2])
 ```
 
+## An even simpler example of Gibb's Sampling
+ - Say we have some discrete joint distribution $P(X,Y)$.
+ - Where both $X$ and $Y$ are binary random variables. 
+ - We can define the joint distribution with a contingency table: 
+```{r echo = FALSE}
+tab <- matrix(c(0.6,0.1,0.1,0.2), ncol = 2)
+row.names(tab) <- c("X = 1","X = 0")
+colnames(tab) <- c("Y = 1","Y = 0")
+tab
+```
+
+## An even simpler example of Gibb's Sampling
+```{r echo = FALSE}
+tab <- matrix(c(0.6,0.1,0.1,0.2), ncol = 2)
+row.names(tab) <- c("X = 1","X = 0")
+colnames(tab) <- c("Y = 1","Y = 0")
+tab
+```
+  - Find: 
+    - P(X = 1 | Y = 1)
+    - P(X = 1 | Y = 0)
+    - P(Y = 1 | X = 1)
+    - P(Y = 1 | X = 0)
+  - We have all the conditionals!    
+ 
+## An even simpler example of Gibb's Sampling
+```{r}
+#Now let's sample from this. 
+nsim <- 1000
+samp <- matrix(NA, ncol = 2, nrow = nsim)
+samp[1,] <- c(0,0)
+
+#Write this here
+
+```
+
 ## Bayesian 
+  - Ok.  Ready?  
+  - There are two main schools of thought in statistics: 
+    - Frequentist
+    - ***Bayesian***
+  
+## Bayesian vs Frequentist
+  - Frequentist
+    - Parameters are fixed and unknown. 
+    - Parameters are single points.
+    - We estimate parameters with point estimates and confidence intervals.  
+    - Everything you've probably ever done.  
+    
+## Bayesian vs Frequentist
+  - Bayesian
+    - Parameters are considered to be  random variables. 
+    - We estimate parameters with distributions called posterior distributions.  
+    - Credible intervals and distribution summaries (e.g. posterior means). 
+    
+## Bayesian    
+   - So what is Bayes Rule? 
+   $$
+   P(A|B) = \frac{P(B|A)P(A)}{P(B|A)P(A) + P(B|A^c)P(A^c)}
+   $$
+   - Can we derive this?  Yes.  Let's do it.  
+
+## Bayesian    
+  - So how can we use Bayes rule to do Bayesian statistics? 
+  - Let's say we have a parameter $\mu$ (the classic populatio mean). 
+  - I want to learn about it so I take a sample form the population.  Let's call the sample $x$. 
+  - What I want to know about is this: 
+  $$
+  P(\mu|x)
+  $$
+  - This will tell us the distribution of $\mu$ given the data that we collected.  
+  - How do we get this!? (And where is Bayes?!)
+
+## Bayesian 
+  - Let's put this in terms of Bayes rule: 
+  $$
+  P(\mu|x) = \frac{P(x|\mu)P(\mu)}{P(x)}
+  $$
+  - The denominator is just a constant so we can re-write this as: 
+  $$
+  P(\mu|x) \propto P(x|\mu)P(\mu)
+  $$
+  
+## Bayesian 
+  - P($\mu$): Prior
+  - Likelihood: P(x|$\mu$)
+  - Posterior: P($\mu$|x)
+  
+## Simplest Bayesian Example: Binomial
+   - Likelihood: $X|p \sim$ Binomial(n,p) ($n$ assumed fixed)
+   - Prior $p \sim$ Beta($\alpha$,$\beta$).
+   
+
+## Let's do some math!
+$$
+P(p|x) \propto P(x|p)P(p)
+$$
+$$
+ = {n \choose x} p^x (1-p)^(n-x) \frac{1}{\beta(\alpha,\beta)}p^{\alpha - 1}(1-p)^{beta - 1}
+$$
+$$
+\propto p^x (1-p)^{n-x} p^{\alpha - 1}(1-p)^{\beta - 1}
+$$
+
+$$
+ p^{x + \alpha + 1} (1-p)^{n-x+\beta-1}
+$$
+  - This is a Beta($\alpha^{\star} = x + \alpha, \beta^{\star} = n - x + \beta$)
+  
+## Data Example
+```{r}
+#Play around we these parameters
+x <- 0
+n <- 1
+alpha <- 1
+beta <- 1
+
+#Posterior
+xxx <- seq(0,1,0.01)
+yyy <- dbeta(xxx,x + alpha,n - x + beta)
+plot(xxx,yyy,type = "l", col = "red")
+#Priot
+yyy <- dbeta(xxx,alpha,beta)
+points(xxx,yyy,type = "l")
+
+```
+
 
 ## Using Gibb's in Bayesian 
 
