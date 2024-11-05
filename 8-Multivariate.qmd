@@ -497,10 +497,23 @@ tab
 ```{r}
 #Now let's sample from this. 
 nsim <- 1000
-samp <- matrix(NA, ncol = 2, nrow = nsim)
-samp[1,] <- c(0,0)
+x <- y <- rep(NA, nsim)
+x[1] <- y[1] <- 0
 
+set.seed(666)
 #Write this here
+for (i in 1:(nsim -1)){
+px <- ifelse(y[i] == 1, 6/7, 1/3)
+x[i+1] <- rbinom(1, 1, px)
+
+py <-  ifelse(x[i+1] == 1, 6/7, 1/3)
+y[i+1] <- rbinom(1, 1, py)
+}
+
+
+
+
+
 
 ```
 
@@ -566,7 +579,7 @@ $$
 P(p|x) \propto P(x|p)P(p)
 $$
 $$
- = {n \choose x} p^x (1-p)^(n-x) \frac{1}{\beta(\alpha,\beta)}p^{\alpha - 1}(1-p)^{beta - 1}
+ = {n \choose x} p^x (1-p)^{n-x} \frac{1}{\beta(\alpha,\beta)}p^{\alpha - 1}(1-p)^{beta - 1}
 $$
 $$
 \propto p^x (1-p)^{n-x} p^{\alpha - 1}(1-p)^{\beta - 1}
@@ -576,14 +589,15 @@ $$
  p^{x + \alpha + 1} (1-p)^{n-x+\beta-1}
 $$
   - This is a Beta($\alpha^{\star} = x + \alpha, \beta^{\star} = n - x + \beta$)
+  - $E[p|x] = \frac{x + \alpha}{n + \alpha + \beta}$
   
 ## Data Example
 ```{r}
 #Play around we these parameters
-x <- 0
-n <- 1
-alpha <- 1
-beta <- 1
+x <- 2
+n <- 2
+alpha <- 5
+beta <- 5
 
 #Posterior
 xxx <- seq(0,1,0.01)
@@ -596,5 +610,213 @@ points(xxx,yyy,type = "l")
 ```
 
 
-## Using Gibb's in Bayesian 
+## Bayesian with STAN
+  - $y|\theta \sim$ binomial(n,$\theta$)
+  - $\theta \sim$ Beta($\alpha,\beta$)
+
+## Bayesian with STAN
+```{r}
+data <- list(y = 2, n = 2)
+
+library(rstan)
+fit1 <- stan(
+  file = "example.stan",  # Stan program
+  data = data,    # named list of data
+  chains = 4,             # number of Markov chains
+  warmup = 1000,          # number of warmup iterations per chain
+  iter = 2000,            # total number of iterations per chain
+  cores = 1,              # number of cores (could use one per chain)
+  refresh = 0             # no progress shown
+  )
+```
+
+## Bayesian with STAN
+```{r}
+#Results summary
+fit1
+plot(fit1)
+```
+
+## Bayesian with STAN
+```{r}
+#Checking convergence
+traceplot(fit1)
+```
+
+## Bayesian with STAN
+```{r}
+#Posterior Distribution
+library(bayesplot)
+mcmc_areas(fit1,
+           pars = c("theta"),
+           prob = 0.8) 
+```
+
+## Bayesian with STAN
+```{r}
+#Checking convergence
+posterior2 <- extract(fit1, inc_warmup = TRUE, permuted = FALSE)
+
+color_scheme_set("mix-blue-pink")
+p <- mcmc_trace(posterior2,  pars = c("theta"), n_warmup = 1000,
+                facet_args = list(nrow = 2, labeller = label_parsed))
+p
+```
+
+
+
+
+## Bayesian with STAN with a strong prior
+```{r}
+data <- list(y = 2, n = 2)
+
+library(rstan)
+fit2 <- stan(
+  file = "example_informative_prior.stan",  # Stan program
+  data = data,    # named list of data
+  chains = 4,             # number of Markov chains
+  warmup = 1000,          # number of warmup iterations per chain
+  iter = 2000,            # total number of iterations per chain
+  cores = 1,              # number of cores (could use one per chain)
+  refresh = 0             # no progress shown
+  )
+```
+
+## Bayesian with STAN
+```{r}
+#Results summary
+fit2
+plot(fit2)
+```
+
+## Bayesian with STAN
+```{r}
+#Checking convergence
+traceplot(fit2)
+```
+
+## Bayesian with STAN
+```{r}
+#Posterior distribution
+library(bayesplot)
+mcmc_areas(fit2,
+           pars = c("theta"),
+           prob = 0.8) 
+```
+
+## Bayesian with STAN
+```{r}
+#Checking convergence
+posterior2 <- extract(fit2, inc_warmup = TRUE, permuted = FALSE)
+
+color_scheme_set("mix-blue-pink")
+p <- mcmc_trace(posterior2,  pars = c("theta"), n_warmup = 1000,
+                facet_args = list(nrow = 2, labeller = label_parsed))
+p
+```
+
+## Write STAN code to fit the following model 
+  - $y|\mu,\sigma^2 ~ N(\mu,\sigma^2)$
+  - $p(\mu,\sigma^2) \propto 1$
+  - Note: STAN uses SD 
+  - Data = 13,-1,8,-12,9,-15,3,27,-4,10
+  
+## Code
+```{r}
+data <- list(y = c(13,-1,8,-12,9,-15,3,27,-4,10), n = 10)
+
+library(rstan)
+fit3 <- stan(
+  file = "example_normal.stan",  # Stan program
+  data = data,    # named list of data
+  chains = 4,             # number of Markov chains
+  warmup = 1000,          # number of warmup iterations per chain
+  iter = 2000,            # total number of iterations per chain
+  cores = 1,              # number of cores (could use one per chain)
+  refresh = 0             # no progress shown
+  )
+```
+
+## Bayesian with STAN
+```{r}
+#Results summary
+fit3
+plot(fit3)
+```
+
+## Bayesian with STAN
+```{r}
+#Checking convergence
+traceplot(fit2)
+```
+
+## Bayesian with STAN
+```{r}
+#Posterior distribution
+library(bayesplot)
+mcmc_areas(fit3,
+           pars = c("mu","sigma"),
+           prob = 0.8) 
+```
+
+## Bayesian with STAN
+```{r}
+#Checking convergence
+posterior2 <- extract(fit3, inc_warmup = TRUE, permuted = FALSE)
+
+color_scheme_set("mix-blue-pink")
+p <- mcmc_trace(posterior2,  pars = c("mu","sigma"), n_warmup = 1000,
+                facet_args = list(nrow = 2))
+p
+```
+
+## Bayesian with brms
+```{r}
+library(brms)
+house <- read.csv("./house_price_regression_dataset.csv")
+
+fit_house <- brm(House_Price ~ Square_Footage + Num_Bedrooms + Num_Bathrooms + Lot_Size, data = house)
+
+```
+## Bayesian with brms
+```{r}
+fit_house
+```
+
+## Bayesian with brms
+```{r}
+plot(fit_house, variable = "Intercept")
+```
+
+## Bayesian with brms
+```{r}
+plot(fit_house, variable = c("b_Square_Footage","b_Num_Bedrooms","b_Num_Bathrooms","b_Lot_Size"))
+```
+
+## Bayesian with brms
+```{r}
+library(bayesplot)
+mcmc_areas(fit_house,
+           pars = c("b_Intercept","b_Num_Bedrooms","b_Num_Bathrooms","b_Lot_Size"),
+           prob = 0.8) 
+
+```
+
+## Bayesian with brms
+```{r}
+library(bayesplot)
+mcmc_areas(fit_house,
+           pars = c("b_Square_Footage"),
+           prob = 0.8) 
+
+```
+
+
+## Bayesian with brms
+```{r}
+stancode(fit_house)
+```
+
+
+
 
