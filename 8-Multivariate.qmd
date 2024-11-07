@@ -624,9 +624,10 @@ fit1 <- stan(
   data = data,    # named list of data
   chains = 4,             # number of Markov chains
   warmup = 1000,          # number of warmup iterations per chain
-  iter = 2000,            # total number of iterations per chain
+  iter = 1000 + 1000*3,            # total number of iterations per chain
   cores = 1,              # number of cores (could use one per chain)
-  refresh = 0             # no progress shown
+  refresh = 0, 
+  thin = 3 # no progress shown
   )
 ```
 
@@ -772,12 +773,18 @@ p
 
 ## Bayesian with brms
 ```{r}
+#| eval: false
 library(brms)
 house <- read.csv("./house_price_regression_dataset.csv")
 
 fit_house <- brm(House_Price ~ Square_Footage + Num_Bedrooms + Num_Bathrooms + Lot_Size, data = house)
-
 ```
+
+```{r}
+library(brms)
+load("./fit_house.RData")
+```
+
 ## Bayesian with brms
 ```{r}
 fit_house
