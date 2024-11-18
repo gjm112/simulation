@@ -728,7 +728,7 @@ data <- list(y = c(13,-1,8,-12,9,-15,3,27,-4,10), n = 10)
 
 library(rstan)
 fit3 <- stan(
-  file = "example_normal.stan",  # Stan program
+  file = "haidavai.stan",  # Stan program
   data = data,    # named list of data
   chains = 4,             # number of Markov chains
   warmup = 1000,          # number of warmup iterations per chain
