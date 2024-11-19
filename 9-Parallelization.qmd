@@ -1,0 +1,327 @@
+---
+title: "Parallelization"
+author: "Gregory J. Matthews"
+format: 
+  revealjs:
+    chalkboard: true
+    slide-number: c/t
+    code-line-numbers: false
+    linestretch: 1.25
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+editor: visual
+execute: 
+  echo: true
+---
+
+
+## Parallel
+  - Why do this?  Because something is taking a long time!
+  - Can we do this for all problems? No.  
+  - But we can do it for a lot of problems!
+  
+## Embarassingly/Perfectly/pleasingly Parallel Examples
+  - Embarassingly parallel: Any process where the elements are calculated independently
+    - Bootstrapping
+    - Cross-Validation
+    - MICE
+    - Many Simulation Studies
+
+## Embarassingly/Perfectly/pleasingly Parallel Examples
+  - MCMC is NOT embarassingly parallel, but computing multiple chains IS.
+  - Good tutorials:
+      - http://gforge.se/2015/02/how-to-go-parallel-in-r-basics-tips/
+      - https://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/parallel.html
+      
+      
+## So what is it?       
+   - Split list X across multiple cores
+   - Copy the supplied function (and associated environment) to each of the cores
+   - Apply the supplied function to each subset of the list X on each of the cores in parallel
+   - Assemble the results of all the function evaluations into a single list and return.
+  
+## Two main ways to do parallel processing
+ - Forking: The forking approach copies the entire current version of R and moves it to a new core.
+ - Sockets: The socket approach launches a new version of R on each core.
+   <!-- - https://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/parallel.html -->
+ 
+## Pros and Cons: Sockets
+  - Pros: 
+    - Works on any system (including Windows).
+    - Each process on each node is unique so it can’t cross-contaminate.
+    
+## Pros and Cons: Sockets
+  - Cons:
+    - Each process is unique so it will be slower
+    - Things such as package loading need to be done in each process separately. Variables defined on your main version of R don’t exist on each core unless explicitly placed there.
+    - More complicated to implement.
+    
+## Pros and Cons: Forking
+
+  - Pro: 
+    - Faster than sockets.
+    - Because it copies the existing version of R, your entire workspace exists in each process.
+    - Trivially easy to implement.
+
+## Pros and Cons: Forking
+  - Con:
+    - Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
+    - Because processes are duplicates, it can cause issues specifically with random number generation (which should usually be handled by parallel in the background) or when running in a GUI (such as RStudio). This doesn’t come up often, but if you get odd behavior, this may be the case.
+    
+## Number of cores
+```{r}
+library(parallel)
+detectCores()
+```
+
+
+
+## Forking: lapply 
+If you can do this:
+```{r}
+library(tictoc)
+system.time(a <- lapply(1:1000, function(x){x^2}))
+```
+You can do parallel processing:
+```{r}
+library(parallel)
+system.time(a <- mclapply(1:1000, function(x){x^2}, mc.cores = 2))
+```
+
+## Forking: lapply 
+If you can do this:
+```{r}
+system.time(a <- lapply(1:1000000, function(x){x^2}))
+```
+You can do parallel processing:
+```{r}
+library(parallel)
+system.time(a <- mclapply(1:1000000, function(x){x^2}, mc.cores = 2))
+```
+
+```{r}
+library(parallel)
+system.time(a <- mclapply(1:1000000, function(x){x^2}, mc.cores = 7))
+```
+
+## Look at system monitor
+
+```{r}
+library(parallel)
+r <- mclapply(1:20, function(i) {
+         Sys.sleep(10)  ## Do nothing for 10 seconds
+}, mc.cores = 10) 
+```
+
+
+## Example
+```{r}
+library(lme4)
+f <- function(i) {
+  lmer(Petal.Width ~ . - Species + (1 | Species), data = iris)
+}
+system.time(save1 <- lapply(1: 500, f))
+```
+
+```{r}
+system.time(save2 <- mclapply(1:500, f, mc.cores = 2))
+```
+
+```{r}
+system.time(save3 <- mclapply(1:500, f, mc.cores = 3))
+```
+
+```{r}
+system.time(save7 <- mclapply(1:500, f, mc.cores = 7))
+```
+
+## Time Note
+  - The ‘user time’ is the CPU time charged for the execution of user instructions of the calling process. 
+  - The ‘system time’ is the CPU time charged for execution by the system on behalf of the calling process.
+  - The ‘elapsed time’ is wall clock time.  
+
+## Time Note 
+
+  "User CPU time" gives the CPU time spent by the current process (i.e., the current R session) and "system CPU time" gives the CPU time spent by the kernel (the operating system) on behalf of the current process. The operating system is used for things like opening files, doing input or output, starting other processes, and looking at the system clock: operations that involve resources that many processes must share." William Dunlap
+
+## Sockets
+  - Start a cluster with n nodes.
+  - Execute any pre-processing code necessary in each node (e.g. loading a package)
+  - Use par\*apply as a replacement for \*apply. Note that unlike mcapply, this is not a drop-in replacement.
+ - Destroy the cluster (not necessary, but best practices).
+
+
+## Create a cluster
+```{r}
+library(parallel)
+detectCores()
+# Calculate the number of cores
+num_cores <- detectCores() - 1
+
+# Initiate cluster
+cl <- makeCluster(num_cores)
+```
+
+## parallel package
+```{r}
+system.time(lapply(1:1000000, function(x){x^2}))
+
+system.time(parLapply(cl, 1:1000000, function(x){x^2}))
+
+stopCluster(cl)
+```
+
+## Example
+```{r}
+#why DOESN'T this work?
+library(lme4)
+f <- function(i) {
+  lmer(Petal.Width ~ . - Species + (1 | Species), data = iris)
+}
+cl <- makeCluster(num_cores)
+try(system.time(save1 <- parLapply(cl, 1:500, f)))
+```
+
+## Example
+```{r}
+#why DOES this work?
+f <- function(i) {
+  library(lme4)
+  lmer(Petal.Width ~ . - Species + (1 | Species), data = iris)
+}
+
+system.time({
+  cl <- makeCluster(num_cores)
+  save1 <- parLapply(cl, 1:500, f)
+  stopCluster(cl)
+  })
+```
+
+## Alternative
+```{r}
+f <- function(i) {
+  lmer(Petal.Width ~ . - Species + (1 | Species), data = iris)
+}
+
+system.time({
+  cl <- makeCluster(num_cores)
+  clusterEvalQ(cl, {
+    library(lme4)
+  })
+  save1 <- parLapply(cl, 1:500, f)
+  stopCluster(cl)
+})
+```
+
+
+
+## foreach
+```{r}
+library(foreach)
+library(doParallel)
+foreach(x = 1:3, .combine = c)  %do%  x^2
+```
+
+## foreach
+This basically acts like sapply.  
+```{r}
+library(foreach)
+library(doParallel)
+detectCores()
+# Calculate the number of cores
+no_cores <- detectCores() - 1
+
+# Initiate cluster
+cl <- makeCluster(no_cores)
+registerDoParallel(cl)
+```
+
+## foreach
+```{r}
+foreach(x = 1:3, .combine = c)  %dopar%  x^2
+foreach(x = 1:3, .combine = cbind)  %dopar%  x^2
+foreach(x = 1:3, .combine = rbind)  %dopar%  x^2
+foreach(x = 1:3, .combine = '+')  %dopar%  x^2
+foreach(x = 1:3, .combine = '*')  %dopar%  x^2
+
+#Remember to stop the cluster
+stopCluster(cl)
+```
+
+
+## Exercise
+Generate a string of $n$ draws from a bernoulli random variable with $p$ = 0.5. If the string
+read 01111010, the length of the longest run is 4 (i.e. 01111010). The question here is to estimate the probability that the longest run length in a series of $n$ independent Bernoulli trials is greater than or equal to log(n) (where this is the natural log).
+
+## Exercise
+```{r}
+n <- 10
+nsim <- 1000
+results <- c()
+for (i in 1:nsim){
+  x <- rbinom(n,1,0.5)
+  results[i] <- max(rle(x)$length) >= log(n)
+}
+mean(results)
+```
+
+## Exercise
+```{r}
+prob <- function(n=10, nsim = 1000){
+results <- c()
+for (i in 1:nsim){
+  x <- rbinom(n,1,0.5)
+  results[i] <- max(rle(x)$length) >= log(n)
+}
+return(mean(results))
+}
+
+
+```
+
+##Exercise
+```{r}
+system.time(test <- lapply(1:1000,prob))
+```
+
+##Exercise
+```{r}
+library(parallel)
+system.time(test <- mclapply(1:1000,prob, mc.cores = 7))
+```
+
+##Exercise
+```{r}
+library(parallel)
+num_cores <- 7
+system.time({
+  cl <- makeCluster(num_cores)
+  test <- parLapply(cl, 1:1000, prob)
+  stopCluster(cl)
+})
+```
+
+## Note
+ - In general, it is NOT a good idea to use the functions described in this chapter with graphical user interfaces (GUIs) because, to summarize the help page for mclapply(), bad things can happen. That said, the functions in the parallel package seem two work okay in RStudio.
+ 
+## Random Numbers: Not reproducible
+```{r}
+set.seed(1)
+r <- mclapply(1:5, function(i) {
+        rnorm(3)
+}, mc.cores = 4)
+r
+```
+
+## Random Numbers: Correct
+```{r}
+RNGkind("L'Ecuyer-CMRG")
+set.seed(1)
+r <- mclapply(1:5, function(i) {
+        rnorm(3)
+}, mc.cores = 4)
+r
+#Set back to Mersenne Twister
+RNGkind("Mersenne-Twister")
+```
