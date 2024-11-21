@@ -121,7 +121,7 @@ library(lme4)
 f <- function(i) {
   lmer(Petal.Width ~ . - Species + (1 | Species), data = iris)
 }
-system.time(save1 <- lapply(1: 500, f))
+system.time(save1 <- lapply(1:500, f))
 ```
 
 ```{r}
@@ -133,7 +133,7 @@ system.time(save3 <- mclapply(1:500, f, mc.cores = 3))
 ```
 
 ```{r}
-system.time(save7 <- mclapply(1:500, f, mc.cores = 7))
+system.time(save7 <- mclapply(1:5000, f, mc.cores = 7))
 ```
 
 ## Time Note
