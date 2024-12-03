@@ -1,0 +1,87 @@
+---
+title: "R Package Development"
+author: "Gregory J. Matthews"
+format: 
+  revealjs:
+    chalkboard: true
+    slide-number: c/t
+    code-line-numbers: false
+    linestretch: 1.25
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+editor: visual
+execute: 
+  echo: true
+---
+
+
+## What is an R package? 
+  - It's just a collection of functions that you want use over and over again.  
+  - That's it.  
+
+## What is the structure of an R package? 
+  - File: DESCRIPTION
+  - File: NAMESPACE
+  - Folder: man
+  - Folder: R
+  
+## DESCRIPTION
+  - Stores metadata about the package
+
+Package: Package Name
+
+Type: Package
+
+Title: What the Package Does (Title Case)
+
+Version: 0.1.0
+
+Author: Who wrote it
+
+Maintainer: The package maintainer <yourself@somewhere.net>
+
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+    
+
+## NAMESPACE
+  - Specifies which functions your package makes available for others to use and, optionally, imports functions from other packages.
+
+## Folder: man
+  - This is where the help files exist. 
+  - These are called .Rd files
+
+## Folder: R
+  - This is where the code goes.
+  - These are .R files
+  - Usually, we try to create one .R file for each function, but you don't HAVE to do this.  
+
+## Creating R packages
+  - In R Studio, you can start a new project and create an R Package skeleton automatically. 
+  - Let's do this now and look at what gets created.
+
+## Putting our package on github
+  - Create a github repo
+  - Connect your github repo to an R project
+  - Move the package skeleton to the local git folder
+  - Push to github
+  
+<!-- https://web.mit.edu/insong/www/pdf/rpackage_instructions.pdf -->
+## Installing a package from github
+
+```{r eval = FALSE}
+library(devtools)
+install_github(repo = "gjm112/christmas")
+library(christmas)
+help(hello)
+```
+
+## Exercise
+  - Let's do three things: 
+    1. Create an R Package to generate a secret santa list
+    2. Put it on Github
+    3. Install the package from Github.
+  
+
+  
