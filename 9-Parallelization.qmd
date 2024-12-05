@@ -180,7 +180,7 @@ f <- function(i) {
   lmer(Petal.Width ~ . - Species + (1 | Species), data = iris)
 }
 cl <- makeCluster(num_cores)
-try(system.time(save1 <- parLapply(cl, 1:500, f)))
+try(system.time(save1 <- parLapply(cl, 1:50, f)))
 ```
 
 ## Example
@@ -193,7 +193,7 @@ f <- function(i) {
 
 system.time({
   cl <- makeCluster(num_cores)
-  save1 <- parLapply(cl, 1:500, f)
+  save1 <- parLapply(cl, 1:50, f)
   stopCluster(cl)
   })
 ```
@@ -209,7 +209,7 @@ system.time({
   clusterEvalQ(cl, {
     library(lme4)
   })
-  save1 <- parLapply(cl, 1:500, f)
+  save1 <- parLapply(cl, 1:50, f)
   stopCluster(cl)
 })
 ```
@@ -249,59 +249,6 @@ foreach(x = 1:3, .combine = '*')  %dopar%  x^2
 stopCluster(cl)
 ```
 
-
-## Exercise
-Generate a string of $n$ draws from a bernoulli random variable with $p$ = 0.5. If the string
-read 01111010, the length of the longest run is 4 (i.e. 01111010). The question here is to estimate the probability that the longest run length in a series of $n$ independent Bernoulli trials is greater than or equal to log(n) (where this is the natural log).
-
-## Exercise
-```{r}
-n <- 10
-nsim <- 1000
-results <- c()
-for (i in 1:nsim){
-  x <- rbinom(n,1,0.5)
-  results[i] <- max(rle(x)$length) >= log(n)
-}
-mean(results)
-```
-
-## Exercise
-```{r}
-prob <- function(n=10, nsim = 1000){
-results <- c()
-for (i in 1:nsim){
-  x <- rbinom(n,1,0.5)
-  results[i] <- max(rle(x)$length) >= log(n)
-}
-return(mean(results))
-}
-
-
-```
-
-##Exercise
-```{r}
-system.time(test <- lapply(1:1000,prob))
-```
-
-##Exercise
-```{r}
-library(parallel)
-system.time(test <- mclapply(1:1000,prob, mc.cores = 7))
-```
-
-##Exercise
-```{r}
-library(parallel)
-num_cores <- 7
-system.time({
-  cl <- makeCluster(num_cores)
-  test <- parLapply(cl, 1:1000, prob)
-  stopCluster(cl)
-})
-```
-
 ## Note
  - In general, it is NOT a good idea to use the functions described in this chapter with graphical user interfaces (GUIs) because, to summarize the help page for mclapply(), bad things can happen. That said, the functions in the parallel package seem two work okay in RStudio.
  
@@ -317,11 +264,106 @@ r
 ## Random Numbers: Correct
 ```{r}
 RNGkind("L'Ecuyer-CMRG")
-set.seed(1)
+set.seed(2)
 r <- mclapply(1:5, function(i) {
-        rnorm(3)
+    rnorm(3)
 }, mc.cores = 4)
 r
 #Set back to Mersenne Twister
 RNGkind("Mersenne-Twister")
 ```
+
+
+## Exercise 1: From Homework
+
+Generate a string of $n$ draws from a bernoulli random variable with $p$ = 0.5. If the string
+read 01111010, the length of the longest run is 4 (i.e. 01111010). The question here is to estimate the probability that the longest run length in a series of $n$ independent Bernoulli trials is greater than or equal to log(n) (where this is the natural log).
+
+## Code here
+```{r}
+library(parallel)
+no_cores <- detectCores() - 1
+system.time({
+# Initiate cluster
+cl <- makeCluster(no_cores)
+prob <- function(n, nsim = 1000){
+  print(n)
+  longest <- function(n){
+  x <- rbinom(n,1,0.5)
+  ml <- max(rle(x)$lengths) 
+  return(ml)
+  }
+  
+  maxx <- replicate(nsim,longest(n))
+  return(mean(maxx >= log(n,3)))
+  
+}
+
+output <- parLapply(cl, 1:1000, prob)
+
+})
+
+#Do this problem, but using parallel processing
+```
+
+## Exercise 2: Bootstrapping
+ - You have a sample of data.  
+ - Assume $X \overset{\mathrm{iid}}{\sim} Poisson(\lambda)$.  
+ - I want to estimate the $P(X = 0)$ and estimate the standard error of this estimate.  
+ -  How do we estimate $\lambda$?
+ -  How do we estimate $P(X = 0)$?
+ -  How do we estimate $se(\widehat{P(X = 0)})$?
+
+## Exercise 2: Bootstrapping
+ $$ 
+ P(X = x) = \frac{e^{-\lambda}\lambda^x}{x!}
+ $$
+ 
+ $$ 
+ P(X = 0) = e^{-\lambda}
+ $$
+ 
+
+## Exercise 2: Bootstrapping
+<!-- set.seed(1234) -->
+<!-- rpois(25,3) -->
+```{r}
+#The data
+x <- c(3, 4, 2, 2, 3, 6, 3, 2, 5, 3, 3, 6, 3, 4, 5, 3, 3, 5, 3, 1, 1, 2, 1, 2, 4)
+```
+
+## Exercise 2: Bootstrapping
+```{r}
+#Code here
+library(parallel)
+no_cores <- detectCores() - 1
+
+# Initiate cluster
+cl <- makeCluster(no_cores)
+
+#The data 
+
+xbar <- mean(x)
+
+
+bootest <- function(i){
+  data <- c(3, 4, 2, 2, 3, 6, 3, 2, 5, 3, 3, 6, 3, 4, 5, 3, 3, 5, 3, 1, 1, 2, 1, 2, 4)
+  boot <- sample(data,length(data), replace = TRUE)
+  prob0 <- exp(-mean(boot))
+  return(prob0)
+}
+
+results <- parLapply(cl, 1:1000, bootest)
+var(unlist(results))
+sd(unlist(results))
+
+
+
+
+
+```
+
+
+
+
+

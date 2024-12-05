@@ -80,8 +80,28 @@ help(hello)
 ## Exercise
   - Let's do three things: 
     1. Create an R Package to generate a secret santa list
+      - Create the .Rd file for the functions.  
+      - Run check
     2. Put it on Github
-    3. Install the package from Github.
+    3. Install the package from Github
+    
+## Adding Data
+
+  - We add data in a data folder 
+  - We can use this for examples
+  - Should be stored as an R object in a .rda file using save()
+  - Store one R object in each data/*.rda file
+  - Use the same name for that object and its .rda file
+  - Use lazy-loading, by default
+  
+## Adding Data
+
+  - Let's add a data set to our secret santa package
+  - Don't forget to add the description file!
+  
+  
+    
+    
   
 
   

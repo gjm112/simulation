@@ -15,31 +15,32 @@ execute:
   echo: true
 ---
 
-
 ## Multivariate Simulation
- - Copula Models
- - MCMC
-    - Metropolis Hastings
-    - Gibbs Sampling
- 
-## Basic Idea
-   - Want to be able to sample from a target distribution.
-   - The distribution now is multivariate.  
-   - The variables will now have a correlation structure
-   
-## Multivariate normal distribution 
-  - ${\bf x} = (x_1,x_2)$ 
-  - pdf: $f({\bf x}) = \frac{1}{(2\pi|{\bf \Sigma}|)^{\frac{k}{2}}}e^{(-\frac{1}{2}({\bf x}-{\bf \mu})'{\bf \Sigma}^{-1}({\bf x}-{\bf\mu}))}$
-   - Mean vector: $\mu = (\mu_1, \mu_2)$.
-   - Correlation matrix: $$\Sigma = 
-   \begin{bmatrix}
-  \sigma^2_1 & \sigma_{12} \\
-  \sigma_{12} & \sigma^2_2 \\
-  \end{bmatrix}$$.
-   
 
+-   Copula Models
+-   MCMC
+    -   Metropolis Hastings
+    -   Gibbs Sampling
+
+## Basic Idea
+
+-   Want to be able to sample from a target distribution.
+-   The distribution now is multivariate.\
+-   The variables will now have a correlation structure
+
+## Multivariate normal distribution
+
+-   ${\bf x} = (x_1,x_2)$
+-   pdf: $f({\bf x}) = \frac{1}{(2\pi|{\bf \Sigma}|)^{\frac{k}{2}}}e^{(-\frac{1}{2}({\bf x}-{\bf \mu})'{\bf \Sigma}^{-1}({\bf x}-{\bf\mu}))}$
+-   Mean vector: $\mu = (\mu_1, \mu_2)$.
+-   Correlation matrix: $$\Sigma = 
+       \begin{bmatrix}
+      \sigma^2_1 & \sigma_{12} \\
+      \sigma_{12} & \sigma^2_2 \\
+      \end{bmatrix}$$.
 
 ## Multivariate normal distribution: Bivariate example
+
 ```{r}
 library(tidyverse)
 library(mvtnorm)
@@ -50,6 +51,7 @@ ggplot(aes(x = x, y = y, z = z), data = dat) + geom_contour_filled() + coord_fix
 ```
 
 ## Multivariate normal distribution: Bivariate example
+
 ```{r}
 library(mvtnorm)
 dat <- expand.grid(seq(-3,3,.1),seq(-3,3,0.1))
@@ -59,6 +61,7 @@ ggplot(aes(x = x, y = y, z = z), data = dat) + geom_contour_filled() + coord_fix
 ```
 
 ## Multivariate normal distribution: Bivariate example
+
 ```{r}
 library(mvtnorm)
 dat <- expand.grid(seq(-3,3,.1),seq(-3,3,0.1))
@@ -68,19 +71,22 @@ ggplot(aes(x = x, y = y, z = z), data = dat) + geom_contour_filled() + coord_fix
 ```
 
 ## Properties of MVN
-  - What is the conditional distribution of $X_1 | X_2$?
-  - $X_1 | X_2 = x_2 \sim N(\mu^\star, \Sigma^\star)$
-    - $\mu^\star = \mu_1 + \Sigma_{12}\Sigma_{22}^{-1}(x_2 - \mu_2)$
-    - $\Sigma^\star = \Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21}$
-  - Bivariate case: 
-    - $\mu^\star = \mu_1 + \frac{\sigma_{12}}{\sigma^2_{2}}(x_2 - \mu_2)$
-    - $\sigma^\star = \sigma^2_{1} - \frac{\sigma_{12}}{\sigma^2_{2}}$
+
+-   What is the conditional distribution of $X_1 | X_2$?
+-   $X_1 | X_2 = x_2 \sim N(\mu^\star, \Sigma^\star)$
+    -   $\mu^\star = \mu_1 + \Sigma_{12}\Sigma_{22}^{-1}(x_2 - \mu_2)$
+    -   $\Sigma^\star = \Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21}$
+-   Bivariate case:
+    -   $\mu^\star = \mu_1 + \frac{\sigma_{12}}{\sigma^2_{2}}(x_2 - \mu_2)$
+    -   $\sigma^\star = \sigma^2_{1} - \frac{\sigma_{12}}{\sigma^2_{2}}$
 
 ## Randomly sampling from bivariate normal
-  - Recall, $p(A \cap B) = p(A|B)p(B)$.  
-  - So if we want to sample from $f(x_1,x_2)$ we can instead sample from $f(x_2)$ first and then sample from $f(x_1|x_2)$. 
-  
+
+-   Recall, $p(A \cap B) = p(A|B)p(B)$.\
+-   So if we want to sample from $f(x_1,x_2)$ we can instead sample from $f(x_2)$ first and then sample from $f(x_1|x_2)$.
+
 ## Randomly sampling from bivariate normal
+
 ```{r}
 #target distribution
 mu <- c(3,5)
@@ -97,36 +103,43 @@ sigma_star <- Sigma[1,1] - Sigma[1,2]/Sigma[2,2]
 x1 <- rnorm(nsim, mu_star, sigma_star) 
 dat <- data.frame(x1,x2)
 ```
+
 ## Randomly sampling from bivariate normal
+
 ```{r}
 library(ggExtra)
 p <- ggplot(aes(x = x1, y= x2),data = dat) + geom_point() + theme_bw() + coord_fixed()
 
 # use ggMarginal function to create marginal histogram
 ggMarginal(p, type="histogram")
-```   
+```
 
 ## Copula
-  - Consider vector $(X_1, X_2, \cdots, X_d)$.
-  - Each $X_i$ has a continuous cdf $F_{X_i}(x)$. 
-  - $(U_1, U_2, \cdots, U_d) = (F_{X_1}(X_1), F_{X_2}(X_2), \cdots, F_{X_d}(X_d)$
-  - The marginals a uniform.  
-  - We say that $(U_1, U_2, \cdots, U_d)$ is the copula of $(X_1, X_2, \cdots, X_d)$. 
-  - The copula contains the information about the correlation structure, and infromation about the marginal distributions are contained in $F_{X_i}(x)$.
-  
-## Inverting the Copula
-  - If we reverse these steps, this gives us a way of generating pseudo-random numbers from multivariate distributions.  
-  - $(X_1, X_2, \cdots, X_d)$ = $(F^{-1}_{X_1}(U_1),F^{-1}_{X_1}(U_2),\cdots, F^{-1}_{U_d}(x))$
-  - So it we can generate $(U_1, U_2, \cdots, U_d)$, then we can generate $(X_1, X_2, \cdots, X_d)$. 
-  - So how do we generate $(U_1, U_2, \cdots, U_d)$?  
 
-## The Gaussian Copula 
-  - $C(u) = \Phi_R(\Phi^{-1}(u_1),\Phi^{-1}(u_2),\cdots,\Phi^{-1}(u_d))$
-    - $R$ is a correlation structure.  
-    - $\Phi$ is the normal cdf. 
+-   Consider vector $(X_1, X_2, \cdots, X_d)$.
+-   Each $X_i$ has a continuous cdf $F_{X_i}(x)$.
+-   $(U_1, U_2, \cdots, U_d) = (F_{X_1}(X_1), F_{X_2}(X_2), \cdots, F_{X_d}(X_d)$
+-   The marginals a uniform.\
+-   We say that $(U_1, U_2, \cdots, U_d)$ is the copula of $(X_1, X_2, \cdots, X_d)$.
+-   The copula contains the information about the correlation structure, and infromation about the marginal distributions are contained in $F_{X_i}(x)$.
+
+## Inverting the Copula
+
+-   If we reverse these steps, this gives us a way of generating pseudo-random numbers from multivariate distributions.\
+-   $(X_1, X_2, \cdots, X_d)$ = $(F^{-1}_{X_1}(U_1),F^{-1}_{X_1}(U_2),\cdots, F^{-1}_{U_d}(x))$
+-   So it we can generate $(U_1, U_2, \cdots, U_d)$, then we can generate $(X_1, X_2, \cdots, X_d)$.
+-   So how do we generate $(U_1, U_2, \cdots, U_d)$?
+
+## The Gaussian Copula
+
+-   $C(u) = \Phi_R(\Phi^{-1}(u_1),\Phi^{-1}(u_2),\cdots,\Phi^{-1}(u_d))$
+    -   $R$ is a correlation structure.\
+    -   $\Phi$ is the normal cdf.
 
 ## Copula Example
-  - Let's try to sample from a bivariate gamma distribution with large positive correlation.  
+
+-   Let's try to sample from a bivariate gamma distribution with large positive correlation.\
+
 ```{r}
 library(mvtnorm)
 mu <- c(0,0)
@@ -139,6 +152,7 @@ x[,2] <- pnorm(x[,2])
 ```
 
 ## Copula Example
+
 ```{r}
 library(ggExtra)
 p <- ggplot(aes(x = V1, y = V2),data = as.data.frame(x)) + geom_point() + theme_bw() + coord_fixed() + theme(legend.position="none")
@@ -147,9 +161,8 @@ p <- ggplot(aes(x = V1, y = V2),data = as.data.frame(x)) + geom_point() + theme_
 ggMarginal(p, type="histogram")
 ```
 
-
-
 ## Copula Example
+
 ```{r}
 #Now we take the copula to the marginals that we want.  
 x[,1] <- qgamma(x[,1],3,5)
@@ -163,8 +176,8 @@ p <- ggplot(aes(x = V1, y = V2),data = as.data.frame(x)) + geom_point() + theme_
 ggMarginal(p, type="histogram")
 ```
 
-
 ## Copula Example: Correlated Binomial
+
 ```{r}
 library(mvtnorm)
 mu <- c(0,0)
@@ -182,6 +195,7 @@ cor(x)
 ```
 
 ## R copula package
+
 ```{r}
 library(copula)
 nsims <- 1000
@@ -195,8 +209,8 @@ cor(x)
   
 ```
 
+## R copula package: Kendall
 
-## R copula package: Kendall 
 ```{r}
 library(copula)
 nsims <- 10000
@@ -209,6 +223,7 @@ cor(qbinom(x,1,0.5), method = "kendall")
 ```
 
 ## R copula package
+
 ```{r}
 library(copula)
 nsims <- 1000
@@ -216,7 +231,9 @@ x <- rCopula(nsims, copula = normalCopula(c(0.5,0.5,0.5), dim = 3, dispstr = "un
 pairs(x)
 cor(x)
 ```
+
 ## R copula package
+
 ```{r}
 library(copula)
 nsims <- 1000
@@ -225,11 +242,12 @@ pairs(x)
 cor(x)
 ```
 
-
 ## Copula Application
+
 [Olympic Sport Climbing](https://jds-online.org/journal/JDS/article/1273/info)
 
 ## Simulation Study
+
 ```{r}
 ec <- read.csv("/Users/gregorymatthews/Dropbox/simulationgit/2024_Electoral_College.csv")
 
@@ -279,48 +297,54 @@ sum(ecsimwcor == 269)/nsim
 
 
 ```
- - Write a simulation to simulate the electoral college in 2 ways: 
-  1. All states are independent.  
-  2. There is correlation between the 7 swing states.  
+
+-   Write a simulation to simulate the electoral college in 2 ways:
+
+1.  All states are independent.\
+2.  There is correlation between the 7 swing states.
 
 ## MCMC
-  - What is MCMC? 
-    - Markov Chain Monte Carlo?
-  - What is Monte Carlo? 
-    - Simulation based study.
-  - What is a Markov Chain?
-    - A chain that only depends on the most recent state. 
-    
-## Monte Carlo    
-  - Monte Carlo techniques solve problems by simulation
-  - Simple example: 
-    - Say I have a fair coin and I want to know the probability that when the coin is flipped it will land on heads.  
-    - Since there are two events in the sample space $\{H,T\}$, and I am interested in one of those events $\{H\}$, the probability will be $\frac{1}{2}$.
-    - However, I could also solve this problem via Monte Carlo simulation.  
-    - How?  Get out a coin, flip it a large number of times, and record the results.  
-    - That's it!
-    - FERMIAC
-    
-## What is a Markov Chain? 
 
-  - A Markov chain is a sequence of random variable where the current random variable is only effected by the most recent random variable and is independent of the all others.
- - Formally, 
- $$
- Pr(X_{n+1}=x|X_{n}=x_{n},X_{n-1}=x_{n-1},....,X_{0}=x_{0})
- $$
- $$
- =Pr(X_{n}=x|X_{n-1}=x_{n-1})
- $$
- 
-  - Basically, if I know the state I am in at time $n-1$, the probability of moving to state $x$ at time $n$ is the same whether or not I have information about the state I was in at times $0$ through $n-1$
-  
-## What is a Markov Chain? 
-  - We need two things for a Markov Chain: 
+-   What is MCMC?
+    -   Markov Chain Monte Carlo?
+-   What is Monte Carlo?
+    -   Simulation based study.
+-   What is a Markov Chain?
+    -   A chain that only depends on the most recent state.
+
+## Monte Carlo
+
+-   Monte Carlo techniques solve problems by simulation
+-   Simple example:
+    -   Say I have a fair coin and I want to know the probability that when the coin is flipped it will land on heads.\
+    -   Since there are two events in the sample space $\{H,T\}$, and I am interested in one of those events $\{H\}$, the probability will be $\frac{1}{2}$.
+    -   However, I could also solve this problem via Monte Carlo simulation.\
+    -   How? Get out a coin, flip it a large number of times, and record the results.\
+    -   That's it!
+    -   FERMIAC
+
+## What is a Markov Chain?
+
+-   A Markov chain is a sequence of random variable where the current random variable is only effected by the most recent random variable and is independent of the all others.
+
+-   Formally, $$
+     Pr(X_{n+1}=x|X_{n}=x_{n},X_{n-1}=x_{n-1},....,X_{0}=x_{0})
+     $$ $$
+     =Pr(X_{n}=x|X_{n-1}=x_{n-1})
+     $$
+
+-   Basically, if I know the state I am in at time $n-1$, the probability of moving to state $x$ at time $n$ is the same whether or not I have information about the state I was in at times $0$ through $n-1$
+
+## What is a Markov Chain?
+
+-   We need two things for a Markov Chain:
     1.  Initial probability matrix: The probability of starting in any given state
-    2.  Transition matrix: For any given state, this matrix gives the probability of moving to the next state.  
+    2.  Transition matrix: For any given state, this matrix gives the probability of moving to the next state.
 
-## An example 
-  - The Drunkards walk.  
+## An example
+
+-   The Drunkards walk.\
+
 ```{r}
 set.seed(1234)
 x<-c()
@@ -330,27 +354,33 @@ x[i]<-x[i-1]+sign(rnorm(1,0,1))
 }
 x
 ```
-  - Question: What would the transition matrix look like for this Markov chain?
+
+-   Question: What would the transition matrix look like for this Markov chain?
 
 ## Metropolis-Hastings
-  - We need:
-    - 1. target distribution $\pi$ and 2. transition kernel $Q$ (generates proposals).
-  - Initialize $X_1 = x_1$
-  - For t = $1, 2, \cdots$, 
-    - Sample $x'$ from $Q(x'|x_t)$.   
-    - Compute $A = min\left(1,\frac{\pi(x')Q(x_t|x')}{\pi(x_t)Q(x'|x_t)}\right)$ (A is the "acceptance probability".)
-    - Accept $x'$ with probability A and set $x_{t+1} = x'$.  Otherwise $x_{t+1} = x_t$.
+
+-   We need:
+    -   
+
+        1.  target distribution $\pi$ and 2. transition kernel $Q$ (generates proposals).
+-   Initialize $X_1 = x_1$
+-   For t = $1, 2, \cdots$,
+    -   Sample $x'$ from $Q(x'|x_t)$.\
+    -   Compute $A = min\left(1,\frac{\pi(x')Q(x_t|x')}{\pi(x_t)Q(x'|x_t)}\right)$ (A is the "acceptance probability".)
+    -   Accept $x'$ with probability A and set $x_{t+1} = x'$. Otherwise $x_{t+1} = x_t$.
 
 ## Metropolis-Hastings
- - Let's implement this for a bivariate normal distribution.
- - Let $\mu = c(10,20)$.
- - Let $\Sigma = 
-   \begin{bmatrix}
-  15 & 5 \\
-  5 & 10 \\
-  \end{bmatrix}$.
-    
+
+-   Let's implement this for a bivariate normal distribution.
+-   Let $\mu = c(10,20)$.
+-   Let $\Sigma =
+    \begin{bmatrix}
+      15 & 5 \\
+      5 & 10 \\
+      \end{bmatrix}$.
+
 ## Metropolis-Hastings
+
 ```{r}
 #Let's implement this. 
 library(mvtnorm)
@@ -376,6 +406,7 @@ if (runif(1) < A){x[t+1,] <- xprime} else {x[t+1,] <- x[t,]}
 ```
 
 ## Metrpolis-Hastings
+
 ```{r}
 library(tidyverse)
 dat <- expand.grid(seq(-5,20,.5),seq(0,30,0.5))
@@ -383,11 +414,14 @@ dat <- cbind(dat, dmvnorm(dat, mu, Sigma))
 names(dat) <- c("x","y","z")
 ggplot(aes(x = V1, y = V2), data = as.data.frame(x)) + geom_path() + geom_contour(aes(x = x, y = y, z = z), data = dat) + coord_fixed()
 ```
+
 ## Burn-in and thinning
-  - Burn-in: We throw away the first $n$ draws to prevent us including draws from before convergence of the chain.
-  - Thinning: We take only every $t$-th iteration.  We want an independent sample, but consecutive draws are often highly correlated.  
+
+-   Burn-in: We throw away the first $n$ draws to prevent us including draws from before convergence of the chain.
+-   Thinning: We take only every $t$-th iteration. We want an independent sample, but consecutive draws are often highly correlated.
 
 ## Metrpolis-Hastings
+
 ```{r}
 #Now drop the first say 1000.  
 library(tidyverse)
@@ -404,35 +438,38 @@ acf(x[,1])
 acf(x[,2])
 ```
 
-
 ## Pros and Cons
- - Cons:
-    - Samples are autocorelated.  Effective sample sizes can be lower.  
-    - Need a "burn-in" period for algorithm to converge. 
-  - Pros:
-    - Does not suffer from the "curse of dimensionality" like acceptance-rejection algorithms that generate independent samples.  This is why this is often used in high dimensional Bayesian models.  
 
-## Gibb's Sampling 
-  - We will sample from a joint distribution by iteratively sampling from all of the conditional distributions.  
-  - Consider $P(X_1, X_2, X_3)$.  We want to sample from it.  
-  - We want to create a chain of values $X_{i,t}$
-  - Start by initializing values for $X_{1,0}, X_{2,0}, X_{3,0}$.
-  - Then sample iteratively from conditionals: 
-    - Draw $X_{1,1}$ from $P(X_{1} | X_{2,0}, X_{3,0})
-    - Draw $X_{2,1}$ from $P(X_{2} | X_{1,1}, X_{3,0})
-    - Draw $X_{3,1}$ from $P(X_{3} | X_{1,1}, X_{2,1})
-  - Repeat.  
-  
+-   Cons:
+    -   Samples are autocorelated. Effective sample sizes can be lower.\
+    -   Need a "burn-in" period for algorithm to converge.
+-   Pros:
+    -   Does not suffer from the "curse of dimensionality" like acceptance-rejection algorithms that generate independent samples. This is why this is often used in high dimensional Bayesian models.
+
+## Gibb's Sampling
+
+-   We will sample from a joint distribution by iteratively sampling from all of the conditional distributions.\
+-   Consider $P(X_1, X_2, X_3)$. We want to sample from it.\
+-   We want to create a chain of values $X_{i,t}$
+-   Start by initializing values for $X_{1,0}, X_{2,0}, X_{3,0}$.
+-   Then sample iteratively from conditionals:
+    -   Draw $X_{1,1}$ from \$P(X\_{1} \| X\_{2,0}, X\_{3,0})
+    -   Draw $X_{2,1}$ from \$P(X\_{2} \| X\_{1,1}, X\_{3,0})
+    -   Draw $X_{3,1}$ from \$P(X\_{3} \| X\_{1,1}, X\_{2,1})
+-   Repeat.
+
 ## Bivariate Gibb's Example
-  - Let's implement this for a bivariate normal distribution.
-  - Let $\mu = c(10,20)$.
-  - Let $\Sigma = 
-   \begin{bmatrix}
-  15 & 5 \\
-  5 & 10 \\
-  \end{bmatrix}$.
-  
+
+-   Let's implement this for a bivariate normal distribution.
+-   Let $\mu = c(10,20)$.
+-   Let $\Sigma =
+       \begin{bmatrix}
+      15 & 5 \\
+      5 & 10 \\
+      \end{bmatrix}$.
+
 ## Bivariate Gibb's Example
+
 ```{r}
 library(mvtnorm)
 mu <- c(10,20)
@@ -455,6 +492,7 @@ x[t+1,2] <- rnorm(1,mu21, sqrt(sigma21))
 ```
 
 ## Bivariate Gibb's Example
+
 ```{r}
 library(tidyverse)
 dat <- expand.grid(seq(-5,20,.5),seq(0,30,0.5))
@@ -462,16 +500,20 @@ dat <- cbind(dat, dmvnorm(dat, mu, Sigma))
 names(dat) <- c("x","y","z")
 ggplot(aes(x = V1, y = V2), data = as.data.frame(x)) + geom_path() + geom_contour(aes(x = x, y = y, z = z), data = dat) + coord_fixed()
 ```
+
 ## Bivariate Gibb's Example
+
 ```{r}
 acf(x[,1])
 acf(x[,2])
 ```
 
 ## An even simpler example of Gibb's Sampling
- - Say we have some discrete joint distribution $P(X,Y)$.
- - Where both $X$ and $Y$ are binary random variables. 
- - We can define the joint distribution with a contingency table: 
+
+-   Say we have some discrete joint distribution $P(X,Y)$.
+-   Where both $X$ and $Y$ are binary random variables.
+-   We can define the joint distribution with a contingency table:
+
 ```{r echo = FALSE}
 tab <- matrix(c(0.6,0.1,0.1,0.2), ncol = 2)
 row.names(tab) <- c("X = 1","X = 0")
@@ -480,20 +522,23 @@ tab
 ```
 
 ## An even simpler example of Gibb's Sampling
+
 ```{r echo = FALSE}
 tab <- matrix(c(0.6,0.1,0.1,0.2), ncol = 2)
 row.names(tab) <- c("X = 1","X = 0")
 colnames(tab) <- c("Y = 1","Y = 0")
 tab
 ```
-  - Find: 
-    - P(X = 1 | Y = 1)
-    - P(X = 1 | Y = 0)
-    - P(Y = 1 | X = 1)
-    - P(Y = 1 | X = 0)
-  - We have all the conditionals!    
- 
+
+-   Find:
+    -   P(X = 1 \| Y = 1)
+    -   P(X = 1 \| Y = 0)
+    -   P(Y = 1 \| X = 1)
+    -   P(Y = 1 \| X = 0)
+-   We have all the conditionals!
+
 ## An even simpler example of Gibb's Sampling
+
 ```{r}
 #Now let's sample from this. 
 nsim <- 1000
@@ -517,81 +562,82 @@ y[i+1] <- rbinom(1, 1, py)
 
 ```
 
-## Bayesian 
-  - Ok.  Ready?  
-  - There are two main schools of thought in statistics: 
-    - Frequentist
-    - ***Bayesian***
-  
-## Bayesian vs Frequentist
-  - Frequentist
-    - Parameters are fixed and unknown. 
-    - Parameters are single points.
-    - We estimate parameters with point estimates and confidence intervals.  
-    - Everything you've probably ever done.  
-    
-## Bayesian vs Frequentist
-  - Bayesian
-    - Parameters are considered to be  random variables. 
-    - We estimate parameters with distributions called posterior distributions.  
-    - Credible intervals and distribution summaries (e.g. posterior means). 
-    
-## Bayesian    
-   - So what is Bayes Rule? 
-   $$
-   P(A|B) = \frac{P(B|A)P(A)}{P(B|A)P(A) + P(B|A^c)P(A^c)}
-   $$
-   - Can we derive this?  Yes.  Let's do it.  
+## Bayesian
 
-## Bayesian    
-  - So how can we use Bayes rule to do Bayesian statistics? 
-  - Let's say we have a parameter $\mu$ (the classic populatio mean). 
-  - I want to learn about it so I take a sample form the population.  Let's call the sample $x$. 
-  - What I want to know about is this: 
-  $$
-  P(\mu|x)
-  $$
-  - This will tell us the distribution of $\mu$ given the data that we collected.  
-  - How do we get this!? (And where is Bayes?!)
+-   Ok. Ready?\
+-   There are two main schools of thought in statistics:
+    -   Frequentist
+    -   ***Bayesian***
 
-## Bayesian 
-  - Let's put this in terms of Bayes rule: 
-  $$
-  P(\mu|x) = \frac{P(x|\mu)P(\mu)}{P(x)}
-  $$
-  - The denominator is just a constant so we can re-write this as: 
-  $$
-  P(\mu|x) \propto P(x|\mu)P(\mu)
-  $$
-  
-## Bayesian 
-  - P($\mu$): Prior
-  - Likelihood: P(x|$\mu$)
-  - Posterior: P($\mu$|x)
-  
+## Bayesian vs Frequentist
+
+-   Frequentist
+    -   Parameters are fixed and unknown.
+    -   Parameters are single points.
+    -   We estimate parameters with point estimates and confidence intervals.\
+    -   Everything you've probably ever done.
+
+## Bayesian vs Frequentist
+
+-   Bayesian
+    -   Parameters are considered to be random variables.
+    -   We estimate parameters with distributions called posterior distributions.\
+    -   Credible intervals and distribution summaries (e.g. posterior means).
+
+## Bayesian
+
+-   So what is Bayes Rule? $$
+       P(A|B) = \frac{P(B|A)P(A)}{P(B|A)P(A) + P(B|A^c)P(A^c)}
+       $$
+-   Can we derive this? Yes. Let's do it.
+
+## Bayesian
+
+-   So how can we use Bayes rule to do Bayesian statistics?
+-   Let's say we have a parameter $\mu$ (the classic populatio mean).
+-   I want to learn about it so I take a sample form the population. Let's call the sample $x$.
+-   What I want to know about is this: $$
+      P(\mu|x)
+      $$
+-   This will tell us the distribution of $\mu$ given the data that we collected.\
+-   How do we get this!? (And where is Bayes?!)
+
+## Bayesian
+
+-   Let's put this in terms of Bayes rule: $$
+      P(\mu|x) = \frac{P(x|\mu)P(\mu)}{P(x)}
+      $$
+-   The denominator is just a constant so we can re-write this as: $$
+      P(\mu|x) \propto P(x|\mu)P(\mu)
+      $$
+
+## Bayesian
+
+-   P($\mu$): Prior
+-   Likelihood: P(x\|$\mu$)
+-   Posterior: P($\mu$\|x)
+
 ## Simplest Bayesian Example: Binomial
-   - Likelihood: $X|p \sim$ Binomial(n,p) ($n$ assumed fixed)
-   - Prior $p \sim$ Beta($\alpha$,$\beta$).
-   
+
+-   Likelihood: $X|p \sim$ Binomial(n,p) ($n$ assumed fixed)
+-   Prior $p \sim$ Beta($\alpha$,$\beta$).
 
 ## Let's do some math!
+
 $$
 P(p|x) \propto P(x|p)P(p)
-$$
-$$
+$$ $$
  = {n \choose x} p^x (1-p)^{n-x} \frac{1}{\beta(\alpha,\beta)}p^{\alpha - 1}(1-p)^{beta - 1}
-$$
-$$
+$$ $$
 \propto p^x (1-p)^{n-x} p^{\alpha - 1}(1-p)^{\beta - 1}
 $$
 
 $$
  p^{x + \alpha + 1} (1-p)^{n-x+\beta-1}
-$$
-  - This is a Beta($\alpha^{\star} = x + \alpha, \beta^{\star} = n - x + \beta$)
-  - $E[p|x] = \frac{x + \alpha}{n + \alpha + \beta}$
-  
+$$ - This is a Beta($\alpha^{\star} = x + \alpha, \beta^{\star} = n - x + \beta$) - $E[p|x] = \frac{x + \alpha}{n + \alpha + \beta}$
+
 ## Data Example
+
 ```{r}
 #Play around we these parameters
 x <- 2
@@ -609,12 +655,13 @@ points(xxx,yyy,type = "l")
 
 ```
 
+## Bayesian with STAN
+
+-   $y|\theta \sim$ binomial(n,$\theta$)
+-   $\theta \sim$ Beta($\alpha,\beta$)
 
 ## Bayesian with STAN
-  - $y|\theta \sim$ binomial(n,$\theta$)
-  - $\theta \sim$ Beta($\alpha,\beta$)
 
-## Bayesian with STAN
 ```{r}
 data <- list(y = 2, n = 2)
 
@@ -632,6 +679,7 @@ fit1 <- stan(
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Results summary
 fit1
@@ -639,12 +687,14 @@ plot(fit1)
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Checking convergence
 traceplot(fit1)
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Posterior Distribution
 library(bayesplot)
@@ -654,6 +704,7 @@ mcmc_areas(fit1,
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Checking convergence
 posterior2 <- extract(fit1, inc_warmup = TRUE, permuted = FALSE)
@@ -664,10 +715,8 @@ p <- mcmc_trace(posterior2,  pars = c("theta"), n_warmup = 1000,
 p
 ```
 
-
-
-
 ## Bayesian with STAN with a strong prior
+
 ```{r}
 data <- list(y = 2, n = 2)
 
@@ -684,6 +733,7 @@ fit2 <- stan(
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Results summary
 fit2
@@ -691,12 +741,14 @@ plot(fit2)
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Checking convergence
 traceplot(fit2)
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Posterior distribution
 library(bayesplot)
@@ -706,6 +758,7 @@ mcmc_areas(fit2,
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Checking convergence
 posterior2 <- extract(fit2, inc_warmup = TRUE, permuted = FALSE)
@@ -716,13 +769,15 @@ p <- mcmc_trace(posterior2,  pars = c("theta"), n_warmup = 1000,
 p
 ```
 
-## Write STAN code to fit the following model 
-  - $y|\mu,\sigma^2 ~ N(\mu,\sigma^2)$
-  - $p(\mu,\sigma^2) \propto 1$
-  - Note: STAN uses SD 
-  - Data = 13,-1,8,-12,9,-15,3,27,-4,10
-  
+## Write STAN code to fit the following model
+
+-   $y|\mu,\sigma^2 ~ N(\mu,\sigma^2)$
+-   $p(\mu,\sigma^2) \propto 1$
+-   Note: STAN uses SD
+-   Data = 13,-1,8,-12,9,-15,3,27,-4,10
+
 ## Code
+
 ```{r}
 data <- list(y = c(13,-1,8,-12,9,-15,3,27,-4,10), n = 10)
 
@@ -739,6 +794,7 @@ fit3 <- stan(
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Results summary
 fit3
@@ -746,12 +802,14 @@ plot(fit3)
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Checking convergence
 traceplot(fit2)
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Posterior distribution
 library(bayesplot)
@@ -761,6 +819,7 @@ mcmc_areas(fit3,
 ```
 
 ## Bayesian with STAN
+
 ```{r}
 #Checking convergence
 posterior2 <- extract(fit3, inc_warmup = TRUE, permuted = FALSE)
@@ -772,6 +831,7 @@ p
 ```
 
 ## Bayesian with brms
+
 ```{r}
 #| eval: false
 library(brms)
@@ -786,21 +846,25 @@ load("./fit_house.RData")
 ```
 
 ## Bayesian with brms
+
 ```{r}
 fit_house
 ```
 
 ## Bayesian with brms
+
 ```{r}
 plot(fit_house, variable = "Intercept")
 ```
 
 ## Bayesian with brms
+
 ```{r}
 plot(fit_house, variable = c("b_Square_Footage","b_Num_Bedrooms","b_Num_Bathrooms","b_Lot_Size"))
 ```
 
 ## Bayesian with brms
+
 ```{r}
 library(bayesplot)
 mcmc_areas(fit_house,
@@ -810,6 +874,7 @@ mcmc_areas(fit_house,
 ```
 
 ## Bayesian with brms
+
 ```{r}
 library(bayesplot)
 mcmc_areas(fit_house,
@@ -818,12 +883,8 @@ mcmc_areas(fit_house,
 
 ```
 
-
 ## Bayesian with brms
+
 ```{r}
 stancode(fit_house)
 ```
-
-
-
-

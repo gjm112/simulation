@@ -1,0 +1,21 @@
+---
+title: "Palmer Penguins"
+author: "Cobblepot Analytics"
+format: dashboard
+---
+    
+## Row {height=70%}
+
+```{r}
+hist(rnorm(100))
+```
+
+## Row {height=30%}
+
+```{r}
+hist(rnorm(100))
+```
+
+```{r}
+hist(rnorm(100))
+```

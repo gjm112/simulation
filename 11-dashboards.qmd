@@ -1,0 +1,33 @@
+---
+title: "11-dashboards"
+format: revealjs
+editor: visual
+---
+
+## Dashboard
+  - What is a dashboard? 
+  - A data dashboard is a visual representation of related data sets that summarizes information to make it easier to understand. Dashboards are a type of data visualization that often use charts, graphs, and tables.
+  
+## Dashboard: Why? 
+  - Easily display data and data summaries
+  - Data exploration without having to coce
+  - Data dissemination. 
+  
+## Dashboard
+
+  - Quarto allows you to create dashboards
+  - Let's look at a really simple example: dashboard.qmd
+  
+## Dashboard
+
+  - These can be made interactive with shiny.
+  - Example: https://cccs.sites.luc.edu/dashboard.html
+  
+## Dashboard  
+
+  - Let's look at how to do this in Quarto. 
+  - dashboard_diamonds.qmd
+
+
+
+
